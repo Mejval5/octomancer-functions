@@ -6,7 +6,7 @@ var customFilter = new Filter({ placeHolder: 'x'});
 
 
 export const _setUsername = functions.https.onCall(async (_data) => {
-    let userName = _data.UserName
+    let userName = _data.userName
     let success = true
     let returnName = ''
     let returnMessage = ''
@@ -35,5 +35,5 @@ export const _setUsername = functions.https.onCall(async (_data) => {
         success = false
         returnMessage = 'too short'
     }
-    return {'success': success, 'userName': returnName, 'returnMessage': returnMessage}
+    return {success: success, userName: returnName, returnMessage: returnMessage}
 })
