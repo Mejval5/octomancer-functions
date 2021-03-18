@@ -3,23 +3,29 @@ admin.initializeApp()
 
 import {_playerGemScoreUpdate} from './lib/PlayerGemScoreUpdater'
 import {_getCurrentTime} from './lib/GetCurrentTime'
+import {_getPlayerData} from './lib/GetPlayerData'
 import {_getPlayerListByRank} from './lib/GetPlayerListByRank'
 import {_getAttackTargets} from './lib/GetAttackTargets'
 import {_setUsername} from './lib/SetUsername'
 import {_loginUser} from './lib/LoginUser'
 import {_addNewPlayer} from './lib/AddNewPlayer'
+import {_addNewGemToTotem} from './lib/AddNewGemToTotem'
 
 
-export const playerGemScoreUpdate = _playerGemScoreUpdate
+exports.playerGemScoreUpdate = _playerGemScoreUpdate
 
-export const getCurrentTime = _getCurrentTime
+exports.getPlayerData = _getPlayerData
 
-export const getPlayerListByRank = _getPlayerListByRank
+exports.getCurrentTime = _getCurrentTime
 
-export const getAttackTargets = _getAttackTargets
+exports.getPlayerListByRank = _getPlayerListByRank
 
-export const setUsername = _setUsername
+exports.getAttackTargets = _getAttackTargets
 
-export const loginUser = _loginUser
+exports.setUsername = _setUsername
+
+exports.loginUser = _loginUser
 
 exports.addNewPlayer = _addNewPlayer
+
+exports.addNewGem = _addNewGemToTotem
