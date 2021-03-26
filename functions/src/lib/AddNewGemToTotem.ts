@@ -19,24 +19,24 @@ export const _addNewGemToTotem = functions.pubsub.topic('add-new-gem').onPublish
       return
     }
 
-    if (gemType == undefined || gemValue == undefined || playerName == undefined) {
+    if (gemType === undefined || gemValue === undefined || playerName === undefined) {
         return
     }
     
-    if (gemName == undefined) {
+    if (gemName === undefined) {
         gemName = GetRandomDocumentID()
     }
 
     let gemValueToSell = 0
-    let newGem = Object.assign({}, gem)
+    const newGem = Object.assign({}, gem)
     newGem.Type = parseInt(gemType)
     newGem.Value = parseInt(gemValue)
     const playerRef = admin.firestore().collection('Players').doc(playerName)
     const playerData = (await playerRef.get()).data()
-    if (playerData != undefined) {
+    if (playerData !== undefined) {
         const availableSlots = GetAvailableSlots(playerData)
         const availableSlotCount = Object.keys(availableSlots).length
-        let playerGems = playerData.TotemData.Gems
+        const playerGems = playerData.TotemData.Gems
         if (availableSlotCount >= 1) {
             newGem.Position = availableSlots[0]
             await AddNewGem(playerRef, newGem, gemName, playerGems)
@@ -57,7 +57,7 @@ export const _addNewGemToTotem = functions.pubsub.topic('add-new-gem').onPublish
 
 async function SellGem(gemValueToSell: number, playerRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>) {
     const conversions = (await admin.firestore().collection('Datasheets').doc("Conversions").get()).data()
-    if (conversions != undefined) {
+    if (conversions !== undefined) {
         const moneyToReceive = gemValueToSell * conversions.GemValueToGoldValue
         await playerRef.update({
             CurrentMoney: admin.firestore.FieldValue.increment(moneyToReceive)
@@ -82,7 +82,7 @@ function FindLowestGem(playerGems: { [key: string]: any }, ritualRunning: boolea
 
 async function AddNewGem(playerRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>,
     newGem: any, gemName: string, playerGems: { [key: string]: any}) {
-    let newPlayerGems = Object.assign({}, playerGems)
+    const newPlayerGems = Object.assign({}, playerGems)
     newPlayerGems[gemName] = newGem
     await UpdateGems(playerRef, newPlayerGems)
 }
@@ -113,13 +113,13 @@ function GetAvailableSlots (playerData: any) {
     }
     // Remove all slots with gems
     Object.keys(playerData.TotemData.Gems).forEach(key => {
-        let slotVal = playerData.TotemData.Gems[key].Position
+        const slotVal = playerData.TotemData.Gems[key].Position
         availableSlots = availableSlots.filter(item => item !== slotVal)
     })
     // Remove all locked slots
     for (let i = 0; i < 6; i++) {
         if (!playerData.TotemData.BonusSlots[i.toString()]) {
-            let slotVal = i+9
+            const slotVal = i+9
             availableSlots = availableSlots.filter(item => item !== slotVal)
         }
     }

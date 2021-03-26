@@ -15,16 +15,22 @@ import {createItemData} from './dataScripts/CreateItemData'
 
 export const _addNewPlayer = functions.pubsub.topic('create-new-player').onPublish(async (message) => {
     let playerName = null
+    let authToken = null
     try {
         playerName = message.json.playerName
+        authToken = message.json.authToken
     } catch (e) {
       console.error('PubSub message was not JSON', e)
       return
     }
+    await AddNewPlayer(playerName, authToken)
+})
+
+export async function AddNewPlayer (playerName: string, authToken: string) {
     const playerData = {
-        AuthToken: '',
+        AuthToken: authToken,
         Email: '',
-        PlayerName: '',
+        PlayerName: playerName,
         CurrentMoney: 0,
         TotalMoney: 0,
         CurrentLevel: 1,
@@ -47,7 +53,7 @@ export const _addNewPlayer = functions.pubsub.topic('create-new-player').onPubli
         MissionData: createMissionData(),
         DefenseLog: {},
         TrapData: createTrapData(),
-        ItemData: createItemData(),
+        ItemData: createItemData()
     }
     await admin.firestore().collection('Players').doc(playerName).set(playerData);
-})
+}

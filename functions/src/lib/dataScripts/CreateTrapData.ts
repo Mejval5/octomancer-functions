@@ -1,7 +1,7 @@
 import {trapData} from './TrapData'
 
 export function createTrapData () {
-  let traps: { [key: string]: any } = {}
+  const traps: { [key: string]: any } = {}
   traps["Urchin"] = trapData
   traps["Dropper"] = trapData
   traps["Muscle"] = trapData

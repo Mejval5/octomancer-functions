@@ -5,7 +5,7 @@ export const gem = {
 }
 
 export function InitGem (_value: number, _type: number, _position: number) {
-  let _gem = Object.assign({}, gem)
+  const _gem = Object.assign({}, gem)
   _gem.Value = _value
   _gem.Type = _type
   _gem.Position = _position

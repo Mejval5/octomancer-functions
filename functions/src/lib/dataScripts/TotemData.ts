@@ -11,10 +11,11 @@ export const totemData = {
   BonusSlots: InitBonusSlots(),
   Gems: InitGems(),
   RitualFinishedPackage: {},
+  RitualTask: ""
 }
 
 function InitGems () {
-    let gems: { [key: string]: any } = {}
+    const gems: { [key: string]: any } = {}
     for (let i = 0; i < 3; i++) {
       const _t = Math.round(Math.random() * 4)
       const _v = Math.round(Math.random() * 20 + 5)
@@ -24,7 +25,7 @@ function InitGems () {
 }
 
 function InitBonusSlots () {
-    let bonusSlots: { [key: string]: any } = {}
+    const bonusSlots: { [key: string]: any } = {}
     for (let i = 0; i < 6; i++) {
       bonusSlots[i.toString()] = false
     }

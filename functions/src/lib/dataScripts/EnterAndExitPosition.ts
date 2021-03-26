@@ -3,11 +3,11 @@ export const trapPosition = {
   PosX: 0,
   PosY: 0,
   RotZ: 0,
-  FlipX: 0,
+  FlipX: 0
 }
 
 export function InitStart () {
-  let trap = Object.assign({}, trapPosition)
+  const trap = Object.assign({}, trapPosition)
   trap.Name = "Start"
   trap.PosX = Math.round(Math.random() * 6 - 3)
   trap.PosY = Math.round(Math.random() * 8 - 10)
@@ -17,7 +17,7 @@ export function InitStart () {
 }
 
 export function InitExit () {
-  let trap = Object.assign({}, trapPosition)
+  const trap = Object.assign({}, trapPosition)
   trap.Name = "Exit"
   trap.PosX = Math.round(Math.random() * 6 - 3)
   trap.PosY = Math.round(Math.random() * 6 - 2)

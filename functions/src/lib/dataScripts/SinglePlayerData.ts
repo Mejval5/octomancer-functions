@@ -1,10 +1,10 @@
 export const singlePlayerData = {
   HowManyStarsYouHaveForEachLevel: initStars(),
-  AreTotemsAvailableInLevels: initTotems(),
+  AreTotemsAvailableInLevels: initTotems()
 }
 
 function initStars () {
-  let stars: { [key: string]: any } = {}
+  const stars: { [key: string]: any } = {}
   for (let i = 0; i < 100; i++) {
     stars[i.toString()] = 0
   }
@@ -12,7 +12,7 @@ function initStars () {
 }
 
 function initTotems () {
-  let totems: { [key: string]: any } = {}
+  const totems: { [key: string]: any } = {}
   for (let i = 0; i < 100; i++) {
     totems[i.toString()] = true
   }

@@ -4,12 +4,13 @@ import {InitStart, InitExit} from './EnterAndExitPosition'
 export const levelData = {
   Shape: "00",
   Style: "01",
+  ChangedLayout: false,
   TrapPositions: InitTraps(),
-  EnterAndExitPositions: InitEnterAndExit(),
+  EnterAndExitPositions: InitEnterAndExit()
 }
 
 function InitTraps () {
-    let traps: { [key: string]: any } = {}
+    const traps: { [key: string]: any } = {}
     traps["01"] = InitTrap("Muscle")
     traps["02"] = InitTrap("Piranha")
     traps["03"] = InitTrap("Urchin")
@@ -19,7 +20,7 @@ function InitTraps () {
 }
 
 function InitEnterAndExit () {
-    let traps: { [key: string]: any } = {}
+    const traps: { [key: string]: any } = {}
     traps["Start"] = InitStart()
     traps["Exit"] = InitExit()
     return traps

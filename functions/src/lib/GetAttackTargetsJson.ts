@@ -1,12 +1,15 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 
-export const _getAttackTargets = functions.https.onCall(async (_data) => {
-    let player_documents = await admin.firestore().collection('Players').get()
-    let player_list: FirebaseFirestore.DocumentData[] = []
+export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
+    const player_documents = await admin.firestore().collection('Players').get()
+    const player_list: string[] = []
     player_documents.forEach(player => {
-        var playerData = player.data()
+        const playerData = player.data()
         if (_data.name === playerData.PlayerName) {
+            return
+        }
+        if (!playerData.LevelData.ChangedLayout) {
             return
         }
         delete playerData.CurrentCrystals
@@ -28,7 +31,7 @@ export const _getAttackTargets = functions.https.onCall(async (_data) => {
         delete playerData.TotalCrystals
         delete playerData.TotalMoney
         delete playerData.SinglePlayerData
-        player_list.push(playerData)
+        player_list.push(JSON.stringify(playerData))
         })
     return player_list
 })

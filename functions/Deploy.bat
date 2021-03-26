@@ -1,2 +1,1 @@
-firebase deploy --only functions
-pause
+cmd /k firebase deploy --only functions

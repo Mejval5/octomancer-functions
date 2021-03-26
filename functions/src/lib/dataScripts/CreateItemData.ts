@@ -1,7 +1,7 @@
 import {itemData} from './ItemData'
 
 export function createItemData () {
-  let items: { [key: string]: any } = {}
+  const items: { [key: string]: any } = {}
   items["DoorUpgrade"] = itemData
   items["GoldMineMaxUpgrade"] = itemData
   items["KeysMaxUpgrade"] = itemData

@@ -1,9 +1,9 @@
 import {missionData} from './MissionData'
 
 export function createMissionData () {
-  let missions: { [key: string]: any } = {}
+  const missions: { [key: string]: any } = {}
   for (let i = 0; i < 3; i++) {
-    let mission = Object.assign({}, missionData)
+    const mission = Object.assign({}, missionData)
     mission.Completion = 0
     mission.Finished = false
     mission.ID = i.toString()

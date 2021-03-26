@@ -1,15 +1,16 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
+import {AddNewPlayer} from './AddNewPlayer'
 
-var Filter = require('bad-words');
-var customFilter = new Filter({ placeHolder: 'x'});
-
+const Filter = require('bad-words');
+const customFilter = new Filter({ placeHolder: 'x'});
 
 export const _setUsername = functions.https.onCall(async (_data) => {
-    let userName = _data.userName
-    let success = true
+    const userName = _data.userName
+    const authToken = _data.authToken
+    let success = false
     let returnName = ''
-    let returnMessage = ''
+    let message = ''
     let userNameWithHash = ''
     if (userName.length > 3) {
         if (!customFilter.isProfane(userName))
@@ -18,22 +19,25 @@ export const _setUsername = functions.https.onCall(async (_data) => {
             {
             userNameWithHash = userName + "#" + (Math.floor(Math.random()*90000) + 10000).toString();
         
-            let player_document = await admin.firestore().collection('Players').doc(userNameWithHash).get()
+            const player_document = await admin.firestore().collection('Players').doc(userNameWithHash).get()
 
             if (!player_document.exists) {
                 break
             }
 
         }
+        success = true
+        message = "accepted"
         returnName = userNameWithHash
+        await AddNewPlayer(userNameWithHash, authToken)
         } else {
             success = false
-            returnMessage = 'profane'
+            message = 'profane'
         }
 
     } else {
         success = false
-        returnMessage = 'too short'
+        message = 'too short'
     }
-    return {success: success, userName: returnName, returnMessage: returnMessage}
+    return {success: success, userName: returnName, message: message}
 })

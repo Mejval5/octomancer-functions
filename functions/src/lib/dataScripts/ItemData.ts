@@ -4,5 +4,5 @@ export const itemData = {
   ItemLevel: 1,
   ItemExperience: 0,
   UpgradingBool: false,
-  TimeStampFinishedUpgrading: admin.firestore.Timestamp.now(),
+  TimeStampFinishedUpgrading: admin.firestore.Timestamp.now()
 }
