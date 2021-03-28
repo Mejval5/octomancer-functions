@@ -6,7 +6,7 @@ export const _getDatasheets = functions.https.onCall(async () => {
     if (snapshot.empty) {
         return {message: "Can't get datasheets", success: false}
     }
-    let datasheets: { [key: string]: any } = {}
+    const datasheets: { [key: string]: any } = {}
     snapshot.forEach(doc => {
         datasheets[doc.id] = doc.data()
     })

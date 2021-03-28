@@ -59,3 +59,17 @@ export async function GetPlayerByAuthToken(authToken : string) {
   })
   return playerData
 }
+
+export function GetDiceThrows() {
+  const rolls: {[key: string]: {[key: string]: number}} = {}
+  for (let i = 0; i < 20; i++) {
+    const dice1 = rollDice(1, 6)
+    const dice2 = rollDice(1, 6)
+    rolls[i.toString()] = {"dice1": dice1, "dice2": dice2}
+  }
+  return rolls
+}
+
+function rollDice(min: number, max: number) {
+  return min + Math.floor(Math.random() * (max-min + 1))
+}
