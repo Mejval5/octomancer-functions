@@ -8,35 +8,36 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
     if (playerData === null) {
         return {success: false, message: "Player not found"}
     }
-    let enemies = await GetEnemies(playerData.PlayerName)
+    const enemies = await GetEnemies(playerData.PlayerName)
 
     const missingEnemies = enemies.length - _data.amount
-    let bots = await GetBots(missingEnemies)
+    const bots = await GetBots(missingEnemies)
 
     
     const enemiesJson: string[] = []
     if (enemies.length > 0) {
-        enemies.forEach(async (enemy) => {
-            const enemyData = {name: enemy.PlayerName, token: enemy.AttackToken, diceRolls: GetDiceThrows(),
-                addedTime: admin.firestore.Timestamp.now(), bot: false, attacked: false, stars: 0}
+        for (const enemy of enemies) {
+            const enemyData = {name: enemy.PlayerName, attackToken: enemy.AttackToken, diceRolls: GetDiceThrows(),
+                addedTime: admin.firestore.Timestamp.now(), bot: false, attacked: false, stars: 0, removeTask: ""}
             await admin.firestore().collection('Players').doc(playerData.PlayerName).
             collection('EnemiesAttacked').doc(enemy.PlayerName).set(enemyData)
 
-            enemiesJson.push(JSON.stringify(enemy))
-        })
+            const enemyString = JSON.stringify(enemy).toString()
+            enemiesJson.push(enemyString)
+        }
     }
 
     if (bots.length > 0) {
-        bots.forEach(async (bot) => {
-            const botData = {name: bot.PlayerName, token: bot.AttackToken, diceRolls: GetDiceThrows(),
-                addedTime: admin.firestore.Timestamp.now(), bot: true, attacked: false, stars: 0}
+        for (const bot of bots) {
+            const botData = {name: bot.PlayerName, attackToken: bot.AttackToken, diceRolls: GetDiceThrows(),
+                addedTime: admin.firestore.Timestamp.now(), bot: true, attacked: false, stars: 0, removeTask: ""}
             await admin.firestore().collection('Players').doc(playerData.PlayerName).
             collection('EnemiesAttacked').doc(bot.PlayerName).set(botData)
 
             enemiesJson.push(JSON.stringify(bot))
-        })
+        }
     }
-    return {success: true, message: "Enemies got", enemies: enemiesJson}
+    return {success: true, message: "Enemies got: " + enemiesJson.length.toString(), enemies: enemiesJson}
 })
 
 async function GetEnemies(name: string) {
@@ -54,8 +55,7 @@ async function GetEnemies(name: string) {
         if (HasBeenAttacked(playerData.PlayerName, previousEnemies)) {
             return
         }
-        playerData.AttackToken = GetRandomDocumentID()
-        playerData.IsBot = false
+        playerData.AttackToken = GetAttackToken(playerData.PlayerName, previousEnemies)
 
         delete playerData.CurrentCrystals
         delete playerData.CurrentKeys
@@ -104,4 +104,21 @@ function HasBeenAttacked(name: string, snapshot: FirebaseFirestore.QuerySnapshot
     })
     return returnValue
 }
+
+function GetAttackToken(name: string, snapshot: FirebaseFirestore.QuerySnapshot<FirebaseFirestore.DocumentData>) {
+    let returnValue = GetRandomDocumentID()
+
+    if (snapshot.empty) {
+        return returnValue
+    }
+
+    snapshot.forEach((doc) => {
+        if (doc.data().name === name) {
+            returnValue = doc.data().attackToken
+        }
+    })
+    return returnValue
+}
+
+
 

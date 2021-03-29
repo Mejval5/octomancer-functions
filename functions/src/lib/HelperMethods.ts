@@ -42,6 +42,13 @@ export async function StartTaskInQueue (queue: string, functionName: string, jso
     return response.name
 }
 
+export async function CancelTask (task: string) {
+  const tasksClient = new CloudTasksClient()
+  try {
+    await tasksClient.deleteTask({ name: task })
+  } catch {await Promise.resolve()}
+}
+
 export async function SendPubSubMessage (topicName: string, data: any) {
     const pubSubClient = new PubSub();
     const dataBuffer: Buffer = Buffer.from(JSON.stringify(data));

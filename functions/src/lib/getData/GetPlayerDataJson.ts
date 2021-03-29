@@ -10,7 +10,6 @@ export const _getPlayerDataJson = functions.https.onCall(async (_data) => {
     let playerData: FirebaseFirestore.DocumentData = {}
     snapshot.forEach(doc => {
         playerData = doc.data()
-        console.log(doc.id)
     })
     delete playerData.LogData
     delete playerData.LogRealMoneyData

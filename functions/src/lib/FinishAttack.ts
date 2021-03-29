@@ -13,16 +13,19 @@ export const _finishAttack = functions.https.onCall(async (_data) => {
     const stars = _data.stars
 
     const attackToken = _data.attackToken
-    const previousEnemies = await admin.firestore().collection('Players').
-    doc(playerData.PlayerName).collection('EnemiesAttacked').get()
+    const previousEnemies = (await admin.firestore().collection('Players').
+    doc(playerData.PlayerName).collection('EnemiesAttacked').get()).docs
 
     let enemyAttackedData: FirebaseFirestore.DocumentData = {}
-    previousEnemies.forEach((enemy) => {
-        enemyAttackedData = enemy.data()
-        if (enemyAttackedData.attackToken === attackToken && !enemyAttackedData.attacked) {
+
+    for (const enemy of previousEnemies) {
+        const enemyData = enemy.data()
+        if (enemyData.attackToken === attackToken && !enemyData.attacked) {
             enemyAttackable = true
+            enemyAttackedData = enemyData
+            break
         }
-    })
+    }
 
     if(!enemyAttackable) {
         return {message: "you cant attack just anyone", success: false}
@@ -35,5 +38,6 @@ export const _finishAttack = functions.https.onCall(async (_data) => {
         })
 
 
-    return {success: true, message: "Attack successful. Now roll.", rolls: enemyAttackedData.diceRolls}
+    return {success: true, message: "Attack successful. Now roll.",
+    diceRolls: JSON.stringify(enemyAttackedData.diceRolls)}
 })

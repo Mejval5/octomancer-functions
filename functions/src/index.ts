@@ -56,6 +56,8 @@ exports.createAttackRewardsDatasheet = _createAttackRewardsDatasheet
 // Attacking functions
 import {_removeAttackTargetAfterTime} from './lib/RemoveAttackTargetAfterTime'
 import {_removeAttackTarget} from './lib/RemoveAttackTarget'
+import {_finishAttack} from './lib/FinishAttack'
 
 exports.removeAttackTargetAfterTime = _removeAttackTargetAfterTime
 exports.removeAttackTarget = _removeAttackTarget
+exports.finishAttack = _finishAttack
