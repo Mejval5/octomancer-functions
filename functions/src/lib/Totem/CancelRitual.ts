@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {GetPlayerByAuthToken} from './HelperMethods'
+import {GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
 
 export const _cancelRitual = functions.https.onCall(async (_data) => {
     const authToken = _data.authToken

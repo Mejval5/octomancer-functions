@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {StartTaskInQueue, CancelTask} from './HelperMethods'
+import {StartTaskInQueue, CancelTask} from '../HelperMethods/GoogleMethods'
 
 export const _removeAttackTargetAfterTime = functions.firestore.document(
     '/Players/{playerID}/EnemiesAttacked/{enemyID}'
@@ -10,7 +10,7 @@ export const _removeAttackTargetAfterTime = functions.firestore.document(
     const _dataAfter = change.after.data()
     if (change.after.exists && change.before.exists) {
         if (_dataBefore !== undefined && _dataAfter !== undefined) {
-            if (_dataBefore.addedTime === _dataAfter.addedTime) {
+            if (JSON.stringify(_dataBefore.addedTime) === JSON.stringify(_dataAfter.addedTime)) {
                 return
             }
         }

@@ -1,11 +1,10 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {GetPlayerByAuthToken} from './HelperMethods'
+import {GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
 
-export const _uploadLevelData = functions.https.onCall(async (_data) => {
+export const _uploadBotLevelData = functions.https.onCall(async (_data) => {
     const levelData = JSON.parse(_data.levelData)
-    const authToken = _data.authToken
-    const playerData = await GetPlayerByAuthToken(authToken)
+    const playerData = await GetPlayerByAuthToken("wat")
     if (playerData === null) {
         return {success: false, message: "Player not found"}
     }
@@ -14,9 +13,9 @@ export const _uploadLevelData = functions.https.onCall(async (_data) => {
     playerData.LevelData.EnterAndExitPositions = levelData.EnterAndExitPositions
     playerData.LevelData.ChangedLayout = true
 
-    await admin.firestore().collection('Players').doc(playerData.PlayerName).update({
+    await admin.firestore().collection('Bots').doc().set({
         LevelData: playerData.LevelData
-          })
+          }, {merge: true})
 
     return {success: true, message: "Level uploaded successfully"}
 })

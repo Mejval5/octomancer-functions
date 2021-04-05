@@ -14,7 +14,7 @@ function InitTraps () {
     traps["01"] = InitTrap("Muscle")
     traps["02"] = InitTrap("Piranha")
     traps["03"] = InitTrap("Urchin")
-    traps["04"] = InitTrap("Tentacle")
+    traps["04"] = InitTrap("Dropper")
     traps["05"] = InitTrap("StaticCanon")
     return traps
 }

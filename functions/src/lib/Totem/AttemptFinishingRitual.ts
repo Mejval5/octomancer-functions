@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {gem} from './dataScripts/Gem'
-import {GetRandomDocumentID} from './HelperMethods'
+import {gem} from '../DataScripts/Gem'
+import {GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
 
 export const _attemptFinishingRitual = functions.https.onRequest(async (req, res) => {
     const playerName = req.body.playerName
@@ -20,7 +20,7 @@ export const _attemptFinishingRitual = functions.https.onRequest(async (req, res
                 TotemData: playerData.TotemData
                 })
         }
-        res.send(200)
+        res.sendStatus(200)
     }
 })
 

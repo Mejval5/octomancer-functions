@@ -1,7 +1,8 @@
 import * as admin from 'firebase-admin'
 
 import {InitGem} from './Gem'
-import {GetRandomDocumentID} from '../HelperMethods'
+import {GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
+import {RollDice} from '../HelperMethods/GameMethods'
 
 export const totemData = {
   RitualRunning: false,
@@ -17,7 +18,7 @@ export const totemData = {
 function InitGems () {
     const gems: { [key: string]: any } = {}
     for (let i = 0; i < 3; i++) {
-      const _t = Math.round(Math.random() * 4)
+      const _t = RollDice(0,2)
       const _v = Math.round(Math.random() * 20 + 5)
       gems[GetRandomDocumentID()] = InitGem(_v, _t, i)
     }

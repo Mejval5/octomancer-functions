@@ -32,12 +32,12 @@ export const _setUsername = functions.https.onCall(async (_data) => {
         await AddNewPlayer(userNameWithHash, authToken)
         } else {
             success = false
-            message = 'profane'
+            message = 'This username contains swear words'
         }
 
     } else {
         success = false
-        message = 'too short'
+        message = 'Username is too short!'
     }
     return {success: success, userName: returnName, message: message}
 })

@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {StartTaskInQueue, GetPlayerByAuthToken} from './HelperMethods'
+import {StartTaskInQueue, GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
 
 export const _startRitual = functions.https.onCall(async (_data) => {
     let playerName = ''

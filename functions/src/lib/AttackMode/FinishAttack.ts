@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {GetPlayerByAuthToken} from './HelperMethods'
+import {GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
 
 export const _finishAttack = functions.https.onCall(async (_data) => {
     const authToken = _data.authToken
@@ -37,7 +37,8 @@ export const _finishAttack = functions.https.onCall(async (_data) => {
             stars: stars
         })
 
-
+    const returnDiceRolls: {[key: string]: any} = {}
+    returnDiceRolls.diceRolls = enemyAttackedData.diceRolls
     return {success: true, message: "Attack successful. Now roll.",
-    diceRolls: JSON.stringify(enemyAttackedData.diceRolls)}
+    diceRolls: JSON.stringify(returnDiceRolls)}
 })

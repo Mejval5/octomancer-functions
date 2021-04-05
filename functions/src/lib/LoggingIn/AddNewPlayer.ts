@@ -1,17 +1,17 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {singlePlayerData} from './dataScripts/SinglePlayerData'
-import {potionData} from './dataScripts/PotionData'
-import {otherCrystalCurrencies} from './dataScripts/OtherCrystalCurrencies'
-import {dailyRewardData} from './dataScripts/DailyRewardData'
-import {levelData} from './dataScripts/LevelData'
-import {logData} from './dataScripts/LogData'
-import {logRealMoneyData} from './dataScripts/LogRealMoneyData'
-import {logTimeData} from './dataScripts/LogTimeData'
-import {totemData} from './dataScripts/TotemData'
-import {createMissionData} from './dataScripts/CreateMissionData'
-import {createTrapData} from './dataScripts/CreateTrapData'
-import {createItemData} from './dataScripts/CreateItemData'
+import {singlePlayerData} from '../DataScripts/SinglePlayerData'
+import {potionData} from '../DataScripts/PotionData'
+import {otherCrystalCurrencies} from '../DataScripts/OtherCrystalCurrencies'
+import {dailyRewardData} from '../DataScripts/DailyRewardData'
+import {levelData} from '../DataScripts/LevelData'
+import {logData} from '../DataScripts/LogData'
+import {logRealMoneyData} from '../DataScripts/LogRealMoneyData'
+import {logTimeData} from '../DataScripts/LogTimeData'
+import {totemData} from '../DataScripts/TotemData'
+import {createMissionData} from '../DataScripts/CreateMissionData'
+import {createTrapData} from '../DataScripts/CreateTrapData'
+import {createItemData} from '../DataScripts/CreateItemData'
 
 export const _addNewPlayer = functions.pubsub.topic('create-new-player').onPublish(async (message) => {
     let playerName = null
@@ -31,7 +31,7 @@ export async function AddNewPlayer (playerName: string, authToken: string) {
         AuthToken: authToken,
         Email: '',
         PlayerName: playerName,
-        CurrentMoney: 0,
+        CurrentMoney: 1500,
         TotalMoney: 0,
         CurrentLevel: 1,
         CurrentXP: 0,
@@ -41,6 +41,7 @@ export async function AddNewPlayer (playerName: string, authToken: string) {
         CurrentGuild: '',
         CurrentKeys: 0,
         GemScore: 0,
+        JoinDate: admin.firestore.Timestamp.now(),
         SinglePlayerData: singlePlayerData,
         PotionData: potionData,
         OtherCrystalCurrenciesData: otherCrystalCurrencies,

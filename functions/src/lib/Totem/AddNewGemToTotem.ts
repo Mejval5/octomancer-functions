@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {gem} from './dataScripts/Gem'
-import {GetRandomDocumentID} from './HelperMethods'
+import {gem} from '../DataScripts/Gem'
+import {GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
 
 export const _addNewGemToTotem = functions.pubsub.topic('add-new-gem').onPublish(async (message) => {
     let playerName = null
