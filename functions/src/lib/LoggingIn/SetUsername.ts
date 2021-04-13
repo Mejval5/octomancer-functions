@@ -12,6 +12,14 @@ export const _setUsername = functions.https.onCall(async (_data) => {
     let returnName = ''
     let message = ''
     let userNameWithHash = ''
+
+    if (userName === undefined) {
+        return {success: false, message: "No username"}
+    }
+    if (userName.includes("#")) {
+        return {success: false, message: "You cannot use # in name!"}
+    }
+
     if (userName.length > 3) {
         if (!customFilter.isProfane(userName))
         {

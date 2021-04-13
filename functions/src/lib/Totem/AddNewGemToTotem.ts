@@ -27,10 +27,18 @@ export const _addNewGemToTotem = functions.pubsub.topic('add-new-gem').onPublish
         gemName = GetRandomDocumentID()
     }
 
-    let gemValueToSell = 0
+    await AddGemToPlayer(playerName, gemName, parseInt(gemType), parseInt(gemValue))
+})
+
+export async function AddGemToPlayer(playerName: string, _gemName: string, gemType: number, gemValue: number) {
+    let gemName = _gemName
+    if (gemName === "") {
+        gemName = GetRandomDocumentID()
+    }
+
     const newGem = Object.assign({}, gem)
-    newGem.Type = parseInt(gemType)
-    newGem.Value = parseInt(gemValue)
+    newGem.Type = gemType
+    newGem.Value = gemValue
     const playerRef = admin.firestore().collection('Players').doc(playerName)
     const playerData = (await playerRef.get()).data()
     if (playerData !== undefined) {
@@ -44,16 +52,16 @@ export const _addNewGemToTotem = functions.pubsub.topic('add-new-gem').onPublish
             const lowestGemInInventory = FindLowestGem(playerGems, playerData.TotemData.RitualRunning)
             if (playerGems[lowestGemInInventory].Value < newGem.Value) {
                 newGem.Position = playerGems[lowestGemInInventory].Position
-                gemValueToSell = playerGems[lowestGemInInventory].Value
-                await RemoveGem(playerRef, lowestGemInInventory, playerGems)
-                await AddNewGem(playerRef, newGem, gemName, playerGems)
+                const removeGem = RemoveGem(playerRef, lowestGemInInventory, playerGems)
+                const addGem =  AddNewGem(playerRef, newGem, gemName, playerGems)
+                const sellGem = SellGem(playerGems[lowestGemInInventory].Value, playerRef)
+                await Promise.all([addGem, removeGem, sellGem])
             } else {
-                gemValueToSell = newGem.Value
+                await SellGem(newGem.Value, playerRef)
             }
         }
-        await SellGem(gemValueToSell, playerRef)
     }
-})
+}
 
 async function SellGem(gemValueToSell: number, playerRef: FirebaseFirestore.DocumentReference<FirebaseFirestore.DocumentData>) {
     const conversions = (await admin.firestore().collection('Datasheets').doc("Conversions").get()).data()

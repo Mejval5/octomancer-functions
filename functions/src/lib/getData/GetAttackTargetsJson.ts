@@ -1,7 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import {GetPlayerByAuthToken, GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
-import {GetDiceThrows, RollDice} from '../HelperMethods/GameMethods'
+import {GetDiceThrows, RollDice, RandomBotName} from '../HelperMethods/GameMethods'
 import {InitGem} from '../DataScripts/Gem'
 
 const _ = require('lodash');
@@ -132,7 +132,7 @@ function GetBot (botDocuments: FirebaseFirestore.QueryDocumentSnapshot<FirebaseF
         RitualTask: ""
     }
     bot.CurrentLevel = Math.floor(Math.random() * 10 + 5)
-    bot.PlayerName = GetBotName()
+    bot.PlayerName = RandomBotName()
     bot.AttackToken = GetAttackToken(bot.PlayerName, previousEnemies.docs)
     bot.CurrentGuild = ""
     bot.GemScore = 0
@@ -150,10 +150,6 @@ function GetBot (botDocuments: FirebaseFirestore.QueryDocumentSnapshot<FirebaseF
     
 
     return bot
-}
-
-function GetBotName () {
-    return "Steve#" + Math.floor(Math.random() * 9000 + 1000).toString()
 }
 
 function InitGems () {

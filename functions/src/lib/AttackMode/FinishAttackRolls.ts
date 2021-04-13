@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {GetPlayerByAuthToken, SendPubSubMessage} from '../HelperMethods/GoogleMethods'
+import {GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
+import {AddGemToPlayer} from '../Totem/AddNewGemToTotem'
 
 export const _finishAttackRolls = functions.https.onCall(async (_data) => {
     const authToken = _data.authToken
@@ -31,8 +32,11 @@ export const _finishAttackRolls = functions.https.onCall(async (_data) => {
         return {message: "you cant attack just anyone", success: false}
     }
 
-    const datasheet = await GetDatasheet(enemyAttackedData.stars)
-    const baseReward = await GetBaseReward(enemyAttackedData.stars, enemyAttackedData.money)
+    const _datasheet = GetDatasheet(enemyAttackedData.stars)
+    const _baseReward = GetBaseReward(enemyAttackedData.stars, enemyAttackedData.money)
+    const _costDatasheet = await admin.firestore().collection("Datasheets").doc('CrystalCosts').get()
+    let [datasheet, baseReward, costDatasheet] = await Promise.all([_datasheet, _baseReward, _costDatasheet]);
+    const costDatasheetData = costDatasheet.data()
 
     // diceRoll from 0 to 19
     const receivedDiceRoll = Math.min(Math.max(Math.floor(playerRoll),0),19)
@@ -43,11 +47,10 @@ export const _finishAttackRolls = functions.https.onCall(async (_data) => {
         rollSum = 12
     }
     
-    const costDatasheet = (await admin.firestore().collection("Datasheets").doc('CrystalCosts').get()).data()
-    if (costDatasheet === undefined) {
+    if (costDatasheetData === undefined) {
         return {message: "Crystal cost datasheet missing!", success: false}
     }
-    const crystalCost = costDatasheet["RollAgainCumulative"][playerRoll]
+    const crystalCost = costDatasheetData["RollAgainCumulative"][playerRoll]
     if (playerData.CurrentCrystals < crystalCost) {
         return {message: "Not enough crystals", success: false}
     }
@@ -58,16 +61,19 @@ export const _finishAttackRolls = functions.https.onCall(async (_data) => {
     const gold = Math.floor(reward.gold * baseReward.gold)
     const xp = Math.floor(reward.xp * baseReward.xp)
 
-    await admin.firestore().collection('Players').doc(playerData.PlayerName).update({
+    const addResources = admin.firestore().collection('Players').doc(playerData.PlayerName).update({
         CurrentMoney: admin.firestore.FieldValue.increment(gold),
         CurrentXP: admin.firestore.FieldValue.increment(xp),
         CurrentCrystals: admin.firestore.FieldValue.increment(crystals),
     })
 
     if (gem && enemyAttackedData.gem !== {}) {
-        const data = {playerName: playerData.PlayerName, gemType: enemyAttackedData.gem.Type, gemValue: enemyAttackedData.gem.Value}
-        await SendPubSubMessage("add-new-gem", data)
-    } 
+        const addGem = AddGemToPlayer(playerData.PlayerName, "", enemyAttackedData.gem.Type, enemyAttackedData.gem.Value)
+        await Promise.all([addGem, addResources])
+    } else {
+        await Promise.all([addResources])
+    }
+
 
     return {success: true, message: "Rewards received"}
 })

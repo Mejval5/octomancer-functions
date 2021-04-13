@@ -14,19 +14,24 @@ export const _skipDungeon = functions.https.onCall(async (_data) => {
     if (playerData.CurrentMoney < money) {
         return {success: false, message: "Not enough money"}
     }
-    await admin.firestore().collection('Players').doc(playerData.PlayerName).update({
-        CurrentMoney: admin.firestore.FieldValue.increment(money),
-    })
+
 
     let enemyAttackable = false
 
     const attackToken = _data.attackToken
-    const previousEnemies = (await admin.firestore().collection('Players').
-    doc(playerData.PlayerName).collection('EnemiesAttacked').get()).docs
-    
+
+    const _previousEnemies = admin.firestore().collection('Players').
+    doc(playerData.PlayerName).collection('EnemiesAttacked').get()
+
+    const addMoney = admin.firestore().collection('Players').doc(playerData.PlayerName).update({
+        CurrentMoney: admin.firestore.FieldValue.increment(money),
+    })
+
+    const [previousEnemies, ] = await Promise.all([_previousEnemies, addMoney])
+
     let enemyAttackedData: FirebaseFirestore.DocumentData = {}
 
-    for (const enemy of previousEnemies) {
+    for (const enemy of previousEnemies.docs) {
         const enemyData = enemy.data()
         if (enemyData.attackToken === attackToken && !enemyData.attacked) {
             enemyAttackable = true
