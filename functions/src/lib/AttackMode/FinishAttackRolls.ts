@@ -67,8 +67,9 @@ export const _finishAttackRolls = functions.https.onCall(async (_data) => {
         CurrentCrystals: admin.firestore.FieldValue.increment(crystals),
     })
 
-    if (gem && enemyAttackedData.gem !== {}) {
-        const addGem = AddGemToPlayer(playerData.PlayerName, "", enemyAttackedData.gem.Type, enemyAttackedData.gem.Value)
+    if (gem && enemyAttackedData.gem.Value !== undefined) {
+        const addGem = AddGemToPlayer(playerData.PlayerName, enemyAttackedData.PickedGemName,
+            enemyAttackedData.gem.Type, enemyAttackedData.gem.Value)
         await Promise.all([addGem, addResources])
     } else {
         await Promise.all([addResources])

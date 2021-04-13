@@ -22,7 +22,7 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
             const enemyData = {name: enemy.PlayerName, attackToken: enemy.AttackToken,
                 diceRolls: GetDiceThrows(), money: enemy.CurrentMoney,
                 addedTime: admin.firestore.Timestamp.now(), bot: false, attacked: false,
-                stars: 0, removeTask: "", gem: enemy.PickedGem}
+                stars: 0, removeTask: "", gem: enemy.PickedGem, PickedGemName: enemy.PickedGemName}
             await admin.firestore().collection('Players').doc(playerData.PlayerName).
             collection('EnemiesAttacked').doc(enemy.PlayerName).set(enemyData)
 
@@ -36,7 +36,7 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
             const botData = {name: bot.PlayerName, attackToken: bot.AttackToken,
                 diceRolls: GetDiceThrows(), money: bot.CurrentMoney,
                 addedTime: admin.firestore.Timestamp.now(), bot: true, attacked: false,
-                stars: 0, removeTask: "", gem: bot.PickedGem}
+                stars: 0, removeTask: "", gem: bot.PickedGem, PickedGemName: bot.PickedGemName}
             await admin.firestore().collection('Players').doc(playerData.PlayerName).
             collection('EnemiesAttacked').doc(bot.PlayerName).set(botData)
 
@@ -64,23 +64,12 @@ async function GetEnemies(name: string, amount: number) : Promise<FirebaseFirest
             continue
         }
         if (HasBeenAttacked(playerData.PlayerName, previousEnemies)) {
-            console.log("This one was attacked: " + playerData.PlayerName)
             continue
         }
         playerData.AttackToken = GetAttackToken(playerData.PlayerName, previousEnemies)
-
-        if (playerData.TotemData.RitualRunning) {
-            const pos = RollDice(20,22)
-            for (const gemKey of Object.keys(playerData.TotemData.Gems)) {
-                const gem = playerData.TotemData.Gems[gemKey]
-                if (gem.Position === pos) {
-                    playerData.PickedGem = gem
-                    playerData.PickedGem.name = gemKey
-                }
-            }
-        } else {
-            playerData.PickedGem = {}
-        }
+        const [gem, gemName] = GetPickedGemAndName(playerData.PlayerName, playerData, previousEnemies)
+        playerData.PickedGem = gem
+        playerData.PickedGemName = gemName
 
         delete playerData.CurrentCrystals
         delete playerData.CurrentKeys
@@ -142,9 +131,10 @@ function GetBot (botDocuments: FirebaseFirestore.QueryDocumentSnapshot<FirebaseF
     if (bot.TotemData.RitualRunning) {
         const key = _.shuffle(Object.keys(bot.TotemData.Gems))[0]
         bot.PickedGem = bot.TotemData.Gems[key]
-        bot.PickedGem.Name = key
+        bot.PickedGemName = key
     } else {
         bot.PickedGem = {}
+        bot.PickedGemName = ""
     }
 
     
@@ -204,3 +194,23 @@ function GetAttackToken(name: string, documents: FirebaseFirestore.QueryDocument
     return returnValue
 }
 
+
+function GetPickedGemAndName(name: string, playerData: FirebaseFirestore.DocumentData,
+    documents: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[]) {
+
+    for (const doc of documents) {
+        if (doc.data().name === name) {
+            return [doc.data().gem, doc.data().PickedGemName]
+        }
+    }
+    if (playerData.TotemData.RitualRunning) {
+        const pos = RollDice(20,22)
+        for (const gemKey of Object.keys(playerData.TotemData.Gems)) {
+            const gem = playerData.TotemData.Gems[gemKey]
+            if (gem.Position === pos) {
+                return [gem, gemKey]
+            }
+        }
+    }
+    return [{}, ""]
+}

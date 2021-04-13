@@ -27,7 +27,7 @@ export const _uploadGemPositionChange = functions.https.onCall(async (_data) => 
 async function AreGemsSame(playerData: any, newGems: any) {
     const oldGems = playerData.TotemData.Gems
     if (!_.isEqual(Object.keys(oldGems).sort(), Object.keys(newGems).sort())) {
-        //console.log("broken keys")
+        console.log("broken keys")
         return false
     }
 
@@ -46,26 +46,26 @@ async function AreGemsSame(playerData: any, newGems: any) {
         availableSlots.push(j)
     }
 
-    //console.log(availableSlots)
+    console.log(availableSlots)
     for (const key in newGems) {
         const oldGem = oldGems[key]
         const newGem = newGems[key]
 
         if (oldGem.Value !== newGem.Value) {
-            //console.log("Value wrong: " + oldGem.Value.toString() + " " + newGem.Value.toString())
+            console.log("Value wrong: " + oldGem.Value.toString() + " " + newGem.Value.toString())
             return false
         }
         if (oldGem.Type !== newGem.Type) {
-            //console.log("Type wrong: " + oldGem.Type.toString() + " " + newGem.Type.toString())
+            console.log("Type wrong: " + oldGem.Type.toString() + " " + newGem.Type.toString())
             return false
         }
 
         if (availableSlots.includes(newGem.Position)) {
-            //console.log("Removed slot: " + newGem.Position.toString())
+            console.log("Removed slot: " + newGem.Position.toString())
             availableSlots = availableSlots.filter(item => item !== newGem.Position)
         } else {
-            //console.log(availableSlots)
-            //console.log("Slot is full: " + newGem.Position.toString())
+            console.log(availableSlots)
+            console.log("Slot is full: " + newGem.Position.toString())
             return false
         }
 

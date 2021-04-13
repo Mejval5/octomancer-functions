@@ -25,10 +25,7 @@ export const _sellGem = functions.https.onCall(async (_data) => {
         if (playerData.TotemData.RitualRunning && [20, 21, 22].includes(gemData.Position)) {
             await StopRitual(playerData.PlayerName)
         }
-        console.log(Object.keys(playerData.TotemData.Gems))
         delete playerData.TotemData.Gems[gem]
-        console.log(Object.keys(playerData.TotemData.Gems))
-        console.log(Object.keys(playerData.TotemData.Gems).length)
         await admin.firestore().collection('Players').doc(playerData.PlayerName).update({
             'TotemData.Gems': playerData.TotemData.Gems
         })
