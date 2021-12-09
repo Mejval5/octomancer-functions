@@ -1,8 +1,8 @@
 import * as admin from 'firebase-admin'
+import { itemType } from '../Types/ItemTypes'
 
-export const itemData = {
+export const newItemData: itemType = {
   ItemLevel: 1,
-  ItemExperience: 0,
   UpgradingBool: false,
   TimeStampFinishedUpgrading: admin.firestore.Timestamp.now()
 }

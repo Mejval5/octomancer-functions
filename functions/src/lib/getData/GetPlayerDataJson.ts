@@ -1,5 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
+import {UpdatePlayerAll} from '../DataScripts/UpdateScripts/PlayerUpdater'
+import { playerTypeFirebase, playerTypeUnity } from '../Types/PlayerTypes'
 
 export const _getPlayerDataJson = functions.https.onCall(async (_data) => {
     const receivedToken = _data.authToken
@@ -7,12 +9,16 @@ export const _getPlayerDataJson = functions.https.onCall(async (_data) => {
     if (snapshot.empty) {
         return {message: "No matching players"}
     }
-    let playerData: FirebaseFirestore.DocumentData = {}
+    let playerData: playerTypeFirebase = {} as playerTypeFirebase
+    let playerName: string = ""
     snapshot.forEach(doc => {
-        playerData = doc.data()
+        playerData = doc.data() as playerTypeFirebase
+        playerName = doc.id
     })
-    delete playerData.LogData
-    delete playerData.LogRealMoneyData
-    delete playerData.LogTimeData
-    return JSON.stringify(playerData)
+
+    await UpdatePlayerAll(playerName)
+
+    const returnPlayer: playerTypeUnity = playerData as playerTypeUnity
+    
+    return JSON.stringify(returnPlayer)
 })

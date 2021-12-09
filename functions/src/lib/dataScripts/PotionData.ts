@@ -1,11 +1,9 @@
-export const potionData = {
-  HowManyPotionsOfAType: initPotions()
-}
+import { allPotionsType } from "../Types/CurrencyTypes"
 
-function initPotions () {
-  const potions: { [key: string]: any } = {}
+export function newPotions () {
+  const potions: allPotionsType = {} as allPotionsType
   for (let i = 1; i <= 7; i++) {
-    potions["Potion0" + i.toString()] = 0
+    potions[i] = 0
   }
   return potions
 }

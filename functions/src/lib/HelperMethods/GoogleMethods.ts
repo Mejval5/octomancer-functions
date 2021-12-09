@@ -1,4 +1,5 @@
 import * as admin from 'firebase-admin'
+import {playerTypeFirebase} from './../Types/PlayerTypes'
 
 const { CloudTasksClient } = require('@google-cloud/tasks')
 const {PubSub} = require('@google-cloud/pubsub');
@@ -8,7 +9,7 @@ const location = 'europe-west1'
 const email = "cloudtasksenqueuer@test-bf862.iam.gserviceaccount.com"
 
 
-export function GetRandomDocumentID () {
+export function GetRandomDocumentID () : string {
     const glyphs = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     const charAmount = 20
     let myString = ""
@@ -55,14 +56,28 @@ export async function SendPubSubMessage (topicName: string, data: any) {
     return pubSubClient.topic(topicName).publish(dataBuffer)
 }
 
-export async function GetPlayerByAuthToken(authToken : string) {
+export async function GetPlayerByAuthToken(authToken : string) : Promise<playerTypeFirebase | null> {
   const snapshot = await admin.firestore().collection('Players').where('AuthToken', '==', authToken).get()
   if (snapshot.empty) {
       return null
   }
-  let playerData: FirebaseFirestore.DocumentData = {}
+  let playerData: playerTypeFirebase = {} as playerTypeFirebase
   snapshot.forEach(doc => {
-      playerData = doc.data()
+      playerData = doc.data() as playerTypeFirebase
   })
   return playerData
+}
+
+export async function GetPlayerByAuthTokenWithRef(authToken : string) : Promise<[playerTypeFirebase | null, FirebaseFirestore.DocumentReference | null]> {
+  const snapshot = await admin.firestore().collection('Players').where('AuthToken', '==', authToken).get()
+  if (snapshot.empty) {
+      return [null, null]
+  }
+  let playerData: playerTypeFirebase = {} as playerTypeFirebase
+  let playerRef: FirebaseFirestore.DocumentReference | null = null
+  snapshot.forEach(doc => {
+      playerRef = doc.ref
+      playerData = doc.data() as playerTypeFirebase
+  })
+  return [playerData, playerRef]
 }

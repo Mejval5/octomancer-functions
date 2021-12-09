@@ -1,18 +1,19 @@
-import {itemData} from './ItemData'
+import { allItemsType } from '../Types/ItemTypes'
+import {newItemData} from './ItemData'
+
 
 export function createItemData () {
-  const items: { [key: string]: any } = {}
-  items["DoorUpgrade"] = itemData
-  items["GoldMineMaxUpgrade"] = itemData
-  items["KeysMaxUpgrade"] = itemData
-  items["KeysRegenUpgrade"] = itemData
-  items["GoldMineSpeedUpgrade"] = itemData
-  items["KillMoneyUpgrade"] = itemData
-  items["GemDefenseUpgrade"] = itemData
-  items["MerchantUpgrade"] = itemData
-  items["HealthSaverUpgrade"] = itemData
-  items["KeySaverUpgrade"] = itemData
-  items["TotemSaverUpgrade"] = itemData
-  items["RitualSpeedUpgrade"] = itemData
+  const items: allItemsType = {} as allItemsType
+  items.PortalDefenseUpgrade = newItemData
+  items.PearlMineMaxUpgrade = newItemData
+  items.ManaMaxUpgrade = newItemData
+  items.ManaRegenUpgrade = newItemData
+  items.PearlMineSpeedUpgrade = newItemData
+  items.SkullPriceUpgrade = newItemData
+  items.SigilDefenseUpgrade = newItemData
+  items.MerchantUpgrade = newItemData
+  items.HealthSaverUpgrade = newItemData
+  items.ManaSaverUpgrade = newItemData
+  items.RitualSpeedUpgrade = newItemData
   return items
 }

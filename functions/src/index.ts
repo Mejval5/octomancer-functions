@@ -17,21 +17,21 @@ exports.getDatasheets = _getDatasheets
 
 
 // Totem functions
-import {_playerGemScoreUpdate} from './lib/Totem/PlayerGemScoreUpdater'
-import {_uploadGemPositionChange} from './lib/Totem/UploadGemPositionChange'
-import {_addNewGemToTotem} from './lib/Totem/AddNewGemToTotem'
+import {_playerSigilScoreUpdater} from './lib/Totem/PlayerSigilScoreUpdater'
+import {_uploadSigilPositionChange} from './lib/Totem/UploadSigilPositionChange'
+import {_addNewSigilToTotem} from './lib/Totem/AddNewSigilToTotem'
 import {_startRitual} from './lib/Totem/StartRitual'
 import {_cancelRitual} from './lib/Totem/CancelRitual'
 import {_attemptFinishingRitual} from './lib/Totem/AttemptFinishingRitual'
-import {_sellGem} from './lib/Totem/SellGem'
+import {_sellSigil} from './lib/Totem/SellSigil'
 
-exports.playerGemScoreUpdate = _playerGemScoreUpdate
-exports.uploadGemPositionChange = _uploadGemPositionChange
-exports.addNewGem = _addNewGemToTotem
+exports.playerSigilScoreUpdater = _playerSigilScoreUpdater
+exports.uploadSigilPositionChange = _uploadSigilPositionChange
+exports.addNewSigilToTotem = _addNewSigilToTotem
 exports.startRitual = _startRitual
 exports.cancelRitual = _cancelRitual
 exports.attemptFinishingRitual = _attemptFinishingRitual
-exports.sellGem = _sellGem
+exports.sellSigil = _sellSigil
 
 
 // Loging in and adding user functions
@@ -54,20 +54,29 @@ exports.uploadBotLevelData = _uploadBotLevelData
 
 // Datasheet functions
 import {_createAttackRewardsDatasheet} from './lib/Datasheets/CreateAttackRewardsDatasheet'
-import {_createCrystalCostsDatasheet} from './lib/Datasheets/CreateCrystalCostsDatasheet'
+import {_createCurrencyCostsDatasheet} from './lib/Datasheets/CreateCurrencyCostsDatasheet'
 
 exports.createAttackRewardsDatasheet = _createAttackRewardsDatasheet
-exports.createCrystalCostsDatasheet = _createCrystalCostsDatasheet
+exports.createCurrencyCostsDatasheet = _createCurrencyCostsDatasheet
 
 // Attacking functions
 import {_removeAttackTargetAfterTime} from './lib/AttackMode/RemoveAttackTargetAfterTime'
 import {_removeAttackTarget} from './lib/AttackMode/RemoveAttackTarget'
 import {_finishAttack} from './lib/AttackMode/FinishAttack'
-import {_finishAttackRolls} from './lib/AttackMode/FinishAttackRolls'
+import {_finishAttackSpins} from './lib/AttackMode/FinishAttackSpins'
 import {_skipDungeon} from './lib/AttackMode/SkipDungeon'
+import {_subtractManaAttack} from './lib/AttackMode/SubtractManaAttack'
 
 exports.removeAttackTargetAfterTime = _removeAttackTargetAfterTime
 exports.removeAttackTarget = _removeAttackTarget
 exports.finishAttack = _finishAttack
-exports.finishAttackRolls = _finishAttackRolls
+exports.finishAttackSpins = _finishAttackSpins
 exports.skipDungeon = _skipDungeon
+exports.subtractManaAttack = _subtractManaAttack
+
+// Updating functions
+import { _updateMana } from './lib/GameLogic/Currencies/ManaUpdater'
+import {_updateAllPlayers} from './lib/DataScripts/UpdateScripts/PlayerUpdater'
+
+exports.updateMana = _updateMana
+exports.updateAllPlayers = _updateAllPlayers

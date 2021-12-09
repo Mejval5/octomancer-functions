@@ -1,20 +1,14 @@
-export const singlePlayerData = {
-  HowManyStarsYouHaveForEachLevel: initStars(),
-  AreTotemsAvailableInLevels: initTotems()
+import { numberNumberMapType } from "../Types/GeneralTypes"
+import { singlePlayerType} from "../Types/SinglePlayerTypes"
+
+export const newSinglePlayerData: singlePlayerType = {
+  HowManyStarsYouHaveForEachLevel: newStars()
 }
 
-function initStars () {
-  const stars: { [key: string]: any } = {}
+function newStars () {
+  const stars: numberNumberMapType = {} as numberNumberMapType
   for (let i = 0; i < 100; i++) {
-    stars[i.toString()] = 0
+    stars[i] = 0
   }
   return stars
-}
-
-function initTotems () {
-  const totems: { [key: string]: any } = {}
-  for (let i = 0; i < 100; i++) {
-    totems[i.toString()] = true
-  }
-  return totems
 }

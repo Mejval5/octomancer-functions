@@ -1,98 +1,59 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {StartTaskInQueue, GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
+import {StartTaskInQueue, GetPlayerByAuthTokenWithRef, GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
+import { totemDatasheetType } from '../Types/DatasheetTypes'
+import { sigilType } from '../Types/TotemTypes'
 
 export const _startRitual = functions.https.onCall(async (_data) => {
-    let playerName = ''
-    const receivedToken = _data.authToken
-    const playerData = await GetPlayerByAuthToken(receivedToken)
-    if (playerData === null) {
+    const receivedToken = _data.authToken as string
+    const [playerData, playerRef] = await GetPlayerByAuthTokenWithRef(receivedToken)
+    if (playerData == null || playerRef == null) {
         return {message: "Player not found", success: false}
     }
-    playerName = playerData.PlayerName
     if (playerData.TotemData.RitualRunning) {
         return {message: "Ritual is running", success: false}
     }
-    if (!AreGemsIn(playerData)) {
-        return {message: "Gems missing", success: false}
+    if (playerData.TotemData.RitualSlot == null) {
+        return {message: "Sigil is missing", success: false}
     }
+    
+    const totemDatasheetSnap = await admin.firestore().collection("Datasheets").doc("SigilRitual").get()
+    const totemDatasheet = totemDatasheetSnap.data() as totemDatasheetType
 
-    playerData.TotemData.RitualStart = admin.firestore.Timestamp.now()
-    const totalGemValue = TotemGemsValue(playerData)
-    const finishTime = await GetRitualTime(totalGemValue)
-    playerData.TotemData.RitualEnd = finishTime
     playerData.TotemData.RitualRunning = true
-    playerData.TotemData.RitualFinishedPackage = {Type: GetFinishedGemType(playerData),
-        Value: await GetFinishedGemValue(totalGemValue)}
+    playerData.TotemData.RitualStart = admin.firestore.Timestamp.now()
 
-    const data = {playerName: playerName}
-    const finishTask = await StartTaskInQueue("ritual-finish", "attemptFinishingRitual", data, finishTime.seconds + 1)
+    const finishTime = getRitualFinishTime(playerData.TotemData.RitualSlot.Value, totemDatasheet)
+
+    playerData.TotemData.RitualEnd = finishTime
+
+    const finishedSigil = {} as sigilType
+    finishedSigil.Type = playerData.TotemData.RitualSlot.Type
+    finishedSigil.Value = getFinishedSigilValue(playerData.TotemData.RitualSlot.Value, totemDatasheet)
+    finishedSigil.Name = GetRandomDocumentID()
+
+    const data = {playerName: playerData.PlayerName}
+    const finishTask = await StartTaskInQueue("ritual-finish", "attemptFinishingRitual", data, finishTime.seconds)
     playerData.TotemData.RitualTask = String(finishTask)
 
-    await admin.firestore().collection('Players').doc(playerName).update({
+    await playerRef.update({
         TotemData: playerData.TotemData
           })
 
     return {message: "Ritual started", success: true}
 })
 
-function GetFinishedGemType (playerData: FirebaseFirestore.DocumentData) {
-    const totemSlots: { [key: string]: number} = {20: 0, 21: 0, 22: 0}
-    Object.keys(playerData.TotemData.Gems).forEach(key => {
-        const pos = String(playerData.TotemData.Gems[key].Position)
-        if (pos in totemSlots) {
-            totemSlots[pos] = playerData.TotemData.Gems[key].Type
-        }
-    })
-    // get random index from 20 to 22 round(-0.49 <-> 2.49) == (0 <-> 2)
-    const randomIndex = (Math.round(Math.random() * 2.98 - 0.49) + 20).toString()
-    return totemSlots[randomIndex]
+function getFinishedSigilValue (val: number, totemDatasheet: totemDatasheetType) {
+    return Math.round(val * totemDatasheet.TotemSigilMultiply)
 }
 
-async function GetFinishedGemValue (val: number) {
-    const gemRitualDatasheet = (await admin.firestore().collection("Datasheets").doc("GemRitual").get()).data()
-    if (gemRitualDatasheet !== undefined) {
-        return Math.round(val * gemRitualDatasheet.MultiplyPerTotemLevel[1])
+function getRitualFinishTime (val: number, totemDatasheet: totemDatasheetType) {
+    let timeRitual = 30
+    for (const key in totemDatasheet.RitualLengthPerSigilValue) {
+        if (parseInt(key) > val) {
+            timeRitual = totemDatasheet.RitualLengthPerSigilValue[key]
+            break
     }
-    return val
-}
-
-function TotemGemsValue (playerData: FirebaseFirestore.DocumentData) {
-    let totalValue = 0
-    const totemSlots: { [key: string]: number} = {20: 0, 21: 0, 22: 0}
-    Object.keys(playerData.TotemData.Gems).forEach(key => {
-        const pos = String(playerData.TotemData.Gems[key].Position)
-        if (pos in totemSlots) {
-            totemSlots[pos] = playerData.TotemData.Gems[key].Value
-        }
-    })
-    totalValue = totemSlots["20"] + totemSlots["21"] + totemSlots["22"]
-    return totalValue
-}
-
-function AreGemsIn (playerData: FirebaseFirestore.DocumentData) {
-    let fullBool = true
-    const totemSlots: { [key: string]: boolean} = {20: false, 21: false, 22: false}
-    Object.keys(playerData.TotemData.Gems).forEach(key => {
-        const pos = String(playerData.TotemData.Gems[key].Position)
-        if (pos in totemSlots) {
-            totemSlots[pos] = true
-        }
-    })
-    fullBool = totemSlots["20"] && totemSlots["21"] && totemSlots["22"]
-    return fullBool
-}
-
-async function GetRitualTime (val: number) {
-    let timeRitual = 7200
-    const gemRitualDatasheet = (await admin.firestore().collection("Datasheets").doc("GemRitual").get()).data()
-    if (gemRitualDatasheet !== undefined) {
-        for (const key in gemRitualDatasheet.TimePerValue) {
-            if (parseInt(key) > val) {
-                timeRitual = gemRitualDatasheet.TimePerValue[key]
-                break
-            }
-        }
     }
     const timeNow = admin.firestore.Timestamp.now()
     const timeRitualSeconds = timeNow.seconds + timeRitual

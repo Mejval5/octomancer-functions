@@ -1,51 +1,44 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import {AddNewPlayer} from './AddNewPlayer'
+import { addNumberAfterName } from '../HelperMethods/GameMethods';
 
 const Filter = require('bad-words');
 const customFilter = new Filter({ placeHolder: 'x'});
 
 export const _setUsername = functions.https.onCall(async (_data) => {
-    const userName = _data.userName
-    const authToken = _data.authToken
-    let success = false
-    let returnName = ''
-    let message = ''
-    let userNameWithHash = ''
+    const authToken = _data.authToken as string
+    const userName = _data.userName as string
+
+    let userNameWithNumber = ''
 
     if (userName === undefined) {
         return {success: false, message: "No username"}
     }
+
     if (userName.includes("#")) {
         return {success: false, message: "You cannot use # in name!"}
     }
 
-    if (userName.length > 3) {
-        if (!customFilter.isProfane(userName))
-        {
-        while (true)
-            {
-            userNameWithHash = userName + "#" + (Math.floor(Math.random()*90000) + 10000).toString();
-        
-            const player_document = await admin.firestore().collection('Players').doc(userNameWithHash).get()
-
-            if (!player_document.exists) {
-                break
-            }
-
-        }
-        success = true
-        message = "accepted"
-        returnName = userNameWithHash
-        await AddNewPlayer(userNameWithHash, authToken)
-        } else {
-            success = false
-            message = 'This username contains swear words'
-        }
-
-    } else {
-        success = false
-        message = 'Username is too short!'
+    if (userName.length < 3) {
+        return {success: false, message: "Username must be at least 3 characters!"}
     }
-    return {success: success, userName: returnName, message: message}
+
+    if (customFilter.isProfane(userName)) {
+        return {success: false, message: "This username contains swear words!"}
+    }
+
+    while (true)
+        {
+        userNameWithNumber = addNumberAfterName(userName)
+    
+        const player_document = await admin.firestore().collection('Players').doc(userNameWithNumber).get()
+
+        if (!player_document.exists) {
+            break
+        }
+    }
+
+    await AddNewPlayer(userNameWithNumber, authToken)
+    return {success: true, userName: userNameWithNumber, message: "Accepted name: " + userNameWithNumber}
 })

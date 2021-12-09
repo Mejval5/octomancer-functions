@@ -1,13 +1,14 @@
-import {trapData} from './TrapData'
+import { allTrapItemsType, trapEnum } from "../Types/TrapTypes"
+import {newTrapItemData} from './TrapData'
 
 export function createTrapData () {
-  const traps: { [key: string]: any } = {}
-  traps["Urchin"] = trapData
-  traps["Dropper"] = trapData
-  traps["Muscle"] = trapData
-  traps["StaticCanon"] = trapData
-  traps["ElectroRock"] = trapData
-  traps["Tentacle"] = trapData
-  traps["Piranha"] = trapData
+  const traps: allTrapItemsType = {} as allTrapItemsType
+  traps[trapEnum[trapEnum.Urchin]] = newTrapItemData
+  traps[trapEnum[trapEnum.Dropper]] = newTrapItemData
+  traps[trapEnum[trapEnum.Muscle]] = newTrapItemData
+  traps[trapEnum[trapEnum.StaticCanon]] = newTrapItemData
+  traps[trapEnum[trapEnum.ElectroRock]] = newTrapItemData
+  traps[trapEnum[trapEnum.Tentacle]] = newTrapItemData
+  traps[trapEnum[trapEnum.Piranha]] = newTrapItemData
   return traps
 }

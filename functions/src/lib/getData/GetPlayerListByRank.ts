@@ -1,14 +1,16 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
+import { playerTypeFirebase, playerRankType } from '../Types/PlayerTypes'
 
 export const _getPlayerListByRank = functions.https.onCall(async () => {
-    const playerDocs = await admin.firestore().collection('Players').orderBy('GemScore', 'desc').get()
-    const playerList: any[] = []
+    const playerDocs = await admin.firestore().collection('Players').orderBy('SigilScore', 'desc').get()
+    const playerList: playerRankType[] = []
     playerDocs.forEach(player => {
-        const _p: {[key: string]: any} = {}
-        _p.PlayerName = player.data().PlayerName
-        _p.GemScore = player.data().GemScore
-        playerList.push(_p)
+        const playerRank: playerRankType = {} as playerRankType
+        const playerData: playerTypeFirebase = player.data() as playerTypeFirebase
+        playerRank.PlayerName = playerData.PlayerName
+        playerRank.SigilScore = playerData.SigilScore
+        playerList.push(playerRank)
         })
     return JSON.stringify(playerList)
 })

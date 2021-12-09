@@ -1,23 +1,15 @@
 import * as functions from 'firebase-functions'
-import * as admin from 'firebase-admin'
+import { GetPlayerByAuthToken } from '../HelperMethods/GoogleMethods'
 
 export const _loginUser = functions.https.onCall(async (_data) => {
-    const tokenID = _data.tokenID
-    let success = true
-    let returnName = ''
-    let message = ''
 
-    const snapshot = await admin.firestore().collection('Players').where('AuthToken', '==', tokenID).get()
+    const authToken = _data.authToken
+    
+    const playerData = await GetPlayerByAuthToken(authToken)
 
-    if (snapshot.empty) {
-        success = false
-        message = 'user not in database'
-    } else {
-        snapshot.forEach(doc => {
-            returnName = doc.id
-            message = 'user found: ' + returnName
-        });
+    if (playerData === null) {
+        return { success: false, message: 'user not in database' }
     }
 
-    return {success: success, userName: returnName, message: message}
+    return { success: true, userName: playerData.PlayerName, message: 'user found: ' + playerData.PlayerName }
 })

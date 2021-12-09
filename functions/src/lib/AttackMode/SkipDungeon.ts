@@ -1,53 +1,46 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import {GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
+import { getAttackTargetEnemy } from './FinishAttack'
+import { currencyCostsDatasheetType } from '../Types/DatasheetTypes'
 //import * as admin from 'firebase-admin'
 
 
 export const _skipDungeon = functions.https.onCall(async (_data) => {
-    const authToken = _data.authToken
+    const authToken = _data.authToken as string
+    const attackToken = _data.attackToken as string
     const playerData = await GetPlayerByAuthToken(authToken)
     if (playerData === null) {
         return {success: false, message: "Player not found"}
     }
-    const money = - _data.money
-    if (playerData.CurrentMoney < money) {
-        return {success: false, message: "Not enough money"}
+
+    const getAttackEnemyTask = getAttackTargetEnemy(attackToken, playerData.PlayerName)
+    const costsDatasheetTask = admin.firestore().collection("Datasheets").doc('CurrencyCosts').get()
+
+    const [[enemyAttackable, enemyAttackedData], costsDatasheetSnap] = await Promise.all([getAttackEnemyTask, costsDatasheetTask])
+    
+    if(!enemyAttackable) {
+        return {success: false, message: "you cant attack just anyone"}
     }
 
+    const costDatasheet = costsDatasheetSnap.data() as currencyCostsDatasheetType
+    const skipCost = costDatasheet.SkipCost
+    
+    if (playerData.CurrentPearls < skipCost) {
+        return {success: false, message: "Not enough pearls"}
+    }
 
-    let enemyAttackable = false
-
-    const attackToken = _data.attackToken
-
-    const _previousEnemies = admin.firestore().collection('Players').
-    doc(playerData.PlayerName).collection('EnemiesAttacked').get()
-
-    const addMoney = admin.firestore().collection('Players').doc(playerData.PlayerName).update({
-        CurrentMoney: admin.firestore.FieldValue.increment(money),
+    const subtractPearlsTask = admin.firestore().collection('Players').doc(playerData.PlayerName).update({
+        CurrentPearls: admin.firestore.FieldValue.increment(- skipCost),
     })
 
-    const [previousEnemies, ] = await Promise.all([_previousEnemies, addMoney])
-
-    let enemyAttackedData: FirebaseFirestore.DocumentData = {}
-
-    for (const enemy of previousEnemies.docs) {
-        const enemyData = enemy.data()
-        if (enemyData.attackToken === attackToken && !enemyData.attacked) {
-            enemyAttackable = true
-            enemyAttackedData = enemyData
-            break
-        }
-    }
-
-    if(!enemyAttackable) {
-        return {message: "Cant skip this guy!", success: false}
-    }
-
-    await admin.firestore().collection('Players').doc(playerData.PlayerName).
-        collection('EnemiesAttacked').doc(enemyAttackedData.name).update({
-            attacked: true,
-            stars: 0
+    const skipEnemyTask = admin.firestore().collection('Players').doc(playerData.PlayerName).
+        collection('EnemiesAttacked').doc(enemyAttackedData.TargetName).update({
+            AlreadyAttacked: true,
+            Stars: 0
         })
-        return {message: "Dungeon skipped", success: true}
+
+    await Promise.all([subtractPearlsTask, skipEnemyTask])
+
+    return {success: true, message: "Dungeon skipped"}
 })

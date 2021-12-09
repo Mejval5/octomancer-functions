@@ -1,57 +1,60 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {singlePlayerData} from '../DataScripts/SinglePlayerData'
-import {potionData} from '../DataScripts/PotionData'
-import {otherCrystalCurrencies} from '../DataScripts/OtherCrystalCurrencies'
-import {dailyRewardData} from '../DataScripts/DailyRewardData'
-import {levelData} from '../DataScripts/LevelData'
-import {logData} from '../DataScripts/LogData'
-import {logRealMoneyData} from '../DataScripts/LogRealMoneyData'
-import {logTimeData} from '../DataScripts/LogTimeData'
-import {totemData} from '../DataScripts/TotemData'
-import {createMissionData} from '../DataScripts/CreateMissionData'
+import {newSinglePlayerData} from '../DataScripts/SinglePlayerData'
+import {newPotions} from '../DataScripts/PotionData'
+import {newDailyRewardData} from '../DataScripts/DailyRewardData'
+import {GetRandomBotDungeon} from '../DataScripts/LevelData'
+import {newTotem} from '../DataScripts/TotemData'
 import {createTrapData} from '../DataScripts/CreateTrapData'
 import {createItemData} from '../DataScripts/CreateItemData'
+import {newManaData} from '../DataScripts/ManaData'
+import { playerTypeFirebase } from '../Types/PlayerTypes'
 
 export const _addNewPlayer = functions.pubsub.topic('create-new-player').onPublish(async (message) => {
-    let playerName = null
-    let authToken = null
+    let playerName: string = ""
+    let authToken: string = ""
     try {
-        playerName = message.json.playerName
-        authToken = message.json.authToken
+        playerName = message.json.playerName as string
+        authToken = message.json.authToken as string
     } catch (e) {
       console.error('PubSub message was not JSON', e)
       return
     }
+
+    if (playerName == "" || authToken == "") {
+        return
+    }
+
     await AddNewPlayer(playerName, authToken)
 })
 
 export async function AddNewPlayer (playerName: string, authToken: string) {
-    const playerData = {
+
+    const levelTask = GetRandomBotDungeon()
+    const totemTask = newTotem()
+
+    const [level, totem] = await Promise.all([levelTask, totemTask])
+
+    const playerData: playerTypeFirebase = {
         AuthToken: authToken,
         Email: '',
         PlayerName: playerName,
-        CurrentMoney: 1500,
-        TotalMoney: 0,
+        CurrentPearls: 1500,
+        TotalPearls: 1500,
         CurrentLevel: 1,
         CurrentXP: 0,
-        CurrentCrystals: 0,
-        TotalCrystals: 0,
+        CurrentGems: 0,
+        TotalGems: 0,
         CurrentLeague: '',
         CurrentGuild: '',
-        CurrentKeys: 0,
-        GemScore: 0,
+        ManaData: newManaData,
+        SigilScore: 0,
         JoinDate: admin.firestore.Timestamp.now(),
-        SinglePlayerData: singlePlayerData,
-        PotionData: potionData,
-        OtherCrystalCurrenciesData: otherCrystalCurrencies,
-        DailyRewardData: dailyRewardData,
-        LevelData: levelData,
-        LogData: logData,
-        LogRealMoneyData: logRealMoneyData,
-        LogTimeData: logTimeData,
-        TotemData: totemData,
-        MissionData: createMissionData(),
+        SinglePlayerData: newSinglePlayerData,
+        PotionData: newPotions(),
+        DailyRewardData: newDailyRewardData,
+        LevelData: level,
+        TotemData: totem,
         DefenseLog: {},
         TrapData: createTrapData(),
         ItemData: createItemData()

@@ -3,7 +3,7 @@ import * as admin from 'firebase-admin'
 import {StartTaskInQueue, CancelTask} from '../HelperMethods/GoogleMethods'
 
 export const _removeAttackTargetAfterTime = functions.firestore.document(
-    '/Players/{playerID}/EnemiesAttacked/{enemyID}'
+    '/Players/{playerName}/EnemiesAttacked/{enemyName}'
     ).onWrite(async (change, context) => {
         
     const _dataBefore = change.before.data()
@@ -28,9 +28,9 @@ export const _removeAttackTargetAfterTime = functions.firestore.document(
     }
 
 
-    const data = {playerID: context.params.playerID, enemyID: context.params.enemyID}
+    const data = {playerName: context.params.playerName, enemyName: context.params.enemyName}
     const timeNow = admin.firestore.Timestamp.now()
-    const deleteAfterSeconds = timeNow.seconds +  60 * 60
+    const deleteAfterSeconds = timeNow.seconds +  30 * 60
     const removeTask = await StartTaskInQueue("delete-attack-target", "removeAttackTarget", data, deleteAfterSeconds)
     return change.after.ref.set({
         removeTask: String(removeTask)

@@ -1,4 +1,5 @@
 import { uniqueNamesGenerator, Config, adjectives, colors, animals } from 'unique-names-generator'
+import { spinsEnemyType } from '../Types/AttackTypes'
 
 const configAdjectives: Config = {
   dictionaries: [colors, animals],
@@ -11,21 +12,6 @@ const configColors: Config = {
   separator: ' '
 }
 
-export function GetDiceThrows() {
-    const rolls: {[key: string]: {[key: string]: number}} = {}
-    for (let i = 0; i < 20; i++) {
-      const dice1 = RollDice(1, 6)
-      const dice2 = RollDice(1, 6)
-      rolls[i.toString()] = {"dice1": dice1, "dice2": dice2}
-    }
-    return rolls
-  }
-  
-export function RollDice(min: number, max: number) {
-  return min + Math.floor(Math.random() * (max-min + 1))
-}
-
-  
 export function RandomBotName () {
   let name = "Steve"
   if (Math.random() > 0.5) {
@@ -33,5 +19,24 @@ export function RandomBotName () {
   } else {
     name = uniqueNamesGenerator(configAdjectives)
   }
-  return name + "#" + Math.floor(Math.random() * 9000 + 1000).toString()
+  return addNumberAfterName(name)
+}
+
+export function addNumberAfterName(name: string) {
+  return name + "#" + (Math.floor(Math.random()*90000) + 10000).toString();
+}
+
+export function GetSpins() {
+    const spins: spinsEnemyType = {} as spinsEnemyType
+    for (let i = 0; i < 20; i++) {
+      spins[i] = Math.random()
+    }
+    return spins
+}
+
+
+export function GetRandomInt(min: number, max: number) {
+  const _min = Math.ceil(min);
+  const _max = Math.floor(max);
+  return Math.floor(Math.random() * (_max - _min) + _min); //The maximum is exclusive and the minimum is inclusive
 }
