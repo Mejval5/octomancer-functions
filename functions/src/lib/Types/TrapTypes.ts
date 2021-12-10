@@ -6,7 +6,7 @@ export type allTrapPositionsType = {
 }
 
 export type allTrapItemsType = {
-    [key: string]: trapItemType;
+    [key in keyof typeof trapEnum]: trapItemType;
 }
 
 export type trapItemType = {
