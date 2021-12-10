@@ -11,7 +11,6 @@ export type allTrapItemsType = {
 
 export type trapItemType = {
     TrapLevel: number;
-    TrapExperience: number;
     UpgradingBool: boolean;
     TimeStampFinishedUpgrading: admin.firestore.Timestamp;
 }
