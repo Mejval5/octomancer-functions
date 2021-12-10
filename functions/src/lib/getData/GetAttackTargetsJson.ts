@@ -68,7 +68,7 @@ function setupSingleAttackTarget(enemy: attackTargetUnityType, firestoreTasks: P
 function createAttackTarget(target: attackTargetUnityType, isBot: boolean): attackTargetFirebaseType {
     return {
         TargetName: target.PlayerName, AttackToken: target.AttackToken,
-        Spins: GetSpins(), Pearls: target.CurrentPearls, PortalCost: target.PortalCost,
+        Spins: GetSpins(), Pearls: target.Pearls, PortalCost: target.PortalCost,
         PortalsAmount: target.PortalsAmount, CorrectPortal: target.CorrectPortal,
         AddedTime: admin.firestore.Timestamp.now(), IsTargetBot: isBot, AlreadyAttacked: false,
         Stars: 0, RemoveTask: "", Sigil: target.Sigil
@@ -109,7 +109,7 @@ async function getEnemies(name: string, amount: number, itemDatasheet: itemDatas
         attackTarget.PortalCost = getManaCostPerPortalFromData(currentEnemyData, itemDatasheet)
         attackTarget.PlayerName = currentEnemyData.PlayerName
         attackTarget.CurrentGuild = currentEnemyData.CurrentGuild
-        attackTarget.CurrentPearls = currentEnemyData.CurrentPearls
+        attackTarget.Pearls = currentEnemyData.CurrentPearls
         attackTarget.LevelData = currentEnemyData.LevelData
         attackTarget.Sigil = currentEnemyData.TotemData.RitualSlot
         attackTarget.TrapData = currentEnemyData.TrapData
@@ -139,7 +139,7 @@ async function GetBot (botDocuments: FirebaseFirestore.QueryDocumentSnapshot<Fir
     attackTarget.CorrectPortal = GetRandomInt(1, attackTarget.PortalsAmount + 1)
     attackTarget.PortalCost = getManaCostPerPortalFromDataBot(itemDatasheet)
     attackTarget.CurrentGuild = ""
-    attackTarget.CurrentPearls = Math.floor(Math.random() * 1500 + 200)
+    attackTarget.Pearls = Math.floor(Math.random() * 1500 + 200)
     attackTarget.PlayerName = RandomBotName()
     attackTarget.LevelData = botData.LevelData
     attackTarget.Sigil = getBotSigil()

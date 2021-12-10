@@ -31,7 +31,6 @@ export type attackTargetUnityType = {
     PortalCost: number
     PlayerName: string
     CurrentGuild: string
-    CurrentPearls: number
     LevelData: levelType
     Sigil: sigilType | null
     TrapData: allTrapItemsType
