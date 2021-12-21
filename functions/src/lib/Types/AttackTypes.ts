@@ -7,6 +7,11 @@ export type spinsEnemyType = {
     [key: number]: number
 }
 
+export type botDataType = {
+    Created: admin.firestore.Timestamp
+    LevelData: levelType
+}
+
 export type attackTargetFirebaseType = {
     TargetName: string
     AttackToken: string

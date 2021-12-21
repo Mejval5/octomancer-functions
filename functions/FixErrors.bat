@@ -1,2 +1,0 @@
-npm eslint . --fix
-exit

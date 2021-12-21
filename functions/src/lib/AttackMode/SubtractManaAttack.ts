@@ -2,6 +2,7 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import {GetPlayerByAuthTokenWithRef} from '../HelperMethods/GoogleMethods'
 import { UpdateMana } from '../GameLogic/Currencies/ManaUpdater'
+import { attackTargetFirebaseType } from '../Types/AttackTypes'
 
 export const _subtractManaAttack = functions.https.onCall(async (_data) => {
     const authToken = _data.authToken
@@ -23,8 +24,8 @@ export const _subtractManaAttack = functions.https.onCall(async (_data) => {
     let enemyAttackedData: FirebaseFirestore.DocumentData = {}
 
     for (const enemy of previousEnemies.docs) {
-        const enemyData = enemy.data()
-        if (enemyData.attackToken === attackToken && !enemyData.attacked) {
+        const enemyData = enemy.data() as attackTargetFirebaseType
+        if (enemyData.AttackToken === attackToken) {
             enemyAttackable = true
             enemyAttackedData = enemyData
             break

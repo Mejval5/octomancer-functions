@@ -3,8 +3,8 @@ import * as admin from 'firebase-admin'
 import * as _ from 'lodash'
 import {GetPlayerByAuthToken} from '../HelperMethods/GoogleMethods'
 import {addSigilToPlayer} from '../Totem/AddNewSigilToTotem'
-import { getAttackTargetEnemy } from './FinishAttack'
 import { attackRewardsDatasheetType, currencyCostsDatasheetType } from '../Types/DatasheetTypes'
+import { attackTargetFirebaseType } from '../Types/AttackTypes'
 
 export const _finishAttackSpins = functions.https.onCall(async (_data) => {
     const authToken = _data.authToken as string
@@ -15,7 +15,22 @@ export const _finishAttackSpins = functions.https.onCall(async (_data) => {
         return {success: false, message: "Player not found"}
     }
 
-    const [enemyAttackable, enemyAttackedData] = await getAttackTargetEnemy(attackToken, playerData.PlayerName)
+    let enemyAttackable = false
+
+    const previousEnemies = await admin.firestore().collection('Players').
+    doc(playerData.PlayerName).collection('EnemiesAttacked').get()
+
+    let enemyAttackedData: FirebaseFirestore.DocumentData = {}
+    
+    for (const enemy of previousEnemies.docs) {
+        const enemyData = enemy.data() as attackTargetFirebaseType
+        if (enemyData.AttackToken === attackToken) {
+            enemyAttackable = true
+            enemyAttackedData = enemyData
+            break
+        }
+    }
+
     if(!enemyAttackable) {
         return {message: "you cant attack just anyone", success: false}
     }

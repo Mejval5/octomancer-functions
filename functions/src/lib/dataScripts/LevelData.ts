@@ -1,7 +1,7 @@
 import {InitTrap, InitStart, InitExit} from './TrapPosition'
 import * as admin from 'firebase-admin'
-import { playerTypeFirebase } from '../Types/PlayerTypes';
-import { allTrapPositionsType, trapEnum } from "../Types/TrapTypes";
+import { allTrapPositionsType } from "../Types/TrapTypes";
+import { botDataType } from '../Types/AttackTypes';
 
 const _ = require('lodash');
 
@@ -15,11 +15,11 @@ export const newLevelData = {
 
 function InitTraps () {
     const traps: allTrapPositionsType = {} as allTrapPositionsType
-    traps[0] = InitTrap(trapEnum.Muscle)
-    traps[1] = InitTrap(trapEnum.Piranha)
-    traps[2] = InitTrap(trapEnum.Urchin)
-    traps[3] = InitTrap(trapEnum.Dropper)
-    traps[4] = InitTrap(trapEnum.StaticCanon)
+    traps[0] = InitTrap("Muscle")
+    traps[1] = InitTrap("Piranha")
+    traps[2] = InitTrap("Urchin")
+    traps[3] = InitTrap("Dropper")
+    traps[4] = InitTrap("StaticCanon")
     return traps
 }
 
@@ -33,5 +33,5 @@ function InitEnterAndExit () {
 export async function GetRandomBotDungeon () {
   const botDocuments = (await admin.firestore().collection('Bots').get()).docs
   const shuffledData = _.shuffle(botDocuments)
-  return ((shuffledData[0]).data() as playerTypeFirebase).LevelData
+  return ((shuffledData[0]).data() as botDataType).LevelData
 }

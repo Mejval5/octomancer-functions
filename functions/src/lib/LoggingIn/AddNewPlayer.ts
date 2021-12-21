@@ -3,12 +3,14 @@ import * as admin from 'firebase-admin'
 import {newSinglePlayerData} from '../DataScripts/SinglePlayerData'
 import {newPotions} from '../DataScripts/PotionData'
 import {newDailyRewardData} from '../DataScripts/DailyRewardData'
-import {newLevelData} from '../DataScripts/LevelData'
+import {GetRandomBotDungeon} from '../DataScripts/LevelData'
 import {newTotem} from '../DataScripts/TotemData'
 import {createTrapData} from '../DataScripts/CreateTrapData'
 import {createItemData} from '../DataScripts/CreateItemData'
 import {newManaData} from '../DataScripts/ManaData'
 import { playerTypeFirebase } from '../Types/PlayerTypes'
+import { getPlayerSigilScore } from '../Totem/PlayerSigilScoreUpdater'
+import { totemDatasheetType } from '../Types/DatasheetTypes'
 
 export const _addNewPlayer = functions.pubsub.topic('create-new-player').onPublish(async (message) => {
     let playerName: string = ""
@@ -30,10 +32,13 @@ export const _addNewPlayer = functions.pubsub.topic('create-new-player').onPubli
 
 export async function AddNewPlayer (playerName: string, authToken: string) {
 
-    //const levelTask = GetRandomBotDungeon()
+    const totemDatasheetTask = admin.firestore().collection('Datasheets').doc('TotemDatasheet').get()
+    const levelTask = GetRandomBotDungeon()
     const totemTask = newTotem()
 
-    const [totem] = await Promise.all([totemTask])
+    const [level, totem, totemDatasheetSnap] = await Promise.all([levelTask, totemTask, totemDatasheetTask])
+
+    const totemDatasheet = totemDatasheetSnap.data() as totemDatasheetType
 
     const playerData: playerTypeFirebase = {
         AuthToken: authToken,
@@ -48,12 +53,12 @@ export async function AddNewPlayer (playerName: string, authToken: string) {
         CurrentLeague: '',
         CurrentGuild: '',
         ManaData: newManaData,
-        SigilScore: 0,
+        SigilScore: await getPlayerSigilScore(totem, totemDatasheet),
         JoinDate: admin.firestore.Timestamp.now(),
         SinglePlayerData: newSinglePlayerData,
         PotionData: newPotions(),
         DailyRewardData: newDailyRewardData,
-        LevelData: newLevelData,
+        LevelData: level,
         TotemData: totem,
         DefenseLog: {},
         TrapData: createTrapData(),

@@ -2,36 +2,42 @@ import * as functions from 'firebase-functions'
 import { playerTypeFirebase } from '../Types/PlayerTypes'
 import * as admin from 'firebase-admin'
 import { totemDatasheetType } from '../Types/DatasheetTypes'
+import { totemType } from '../Types/TotemTypes'
 
 export const _playerSigilScoreUpdater = functions.firestore.document('Players/{userId}').onUpdate(async (change, _) =>{
     const playerData = change.after.data() as playerTypeFirebase
-    let sigilvalue = 0
 
     const totemDatasheetDoc = await admin.firestore().collection('Datasheets').doc('TotemDatasheet').get()
     const totemDatasheet = totemDatasheetDoc.data() as totemDatasheetType
 
+    const sigilValue = await getPlayerSigilScore(playerData.TotemData, totemDatasheet)
+    
+    return change.after.ref.set({
+        SigilScore: sigilValue
+      }, {merge: true})
+})
+
+export async function getPlayerSigilScore(totemData: totemType, totemDatasheet: totemDatasheetType) {
+    let sigilValue = 0
     for (let i = 0; i < totemDatasheet.RegularSlots; i++) {
-        const sigilSlot = playerData.TotemData.NormalSlots[i]
+        const sigilSlot = totemData.NormalSlots[i]
         if (sigilSlot != null) {
             const val = sigilSlot.Value
-            sigilvalue += val
+            sigilValue += val
         }
     }
 
     for (let i = 0; i < totemDatasheet.BonusSlots; i++) {
-        const sigilSlot = playerData.TotemData.BonusSlots[i]
+        const sigilSlot = totemData.BonusSlots[i]
         if (sigilSlot.Unlocked && sigilSlot.Sigil != null) {
             const val = sigilSlot.Sigil.Value
-            sigilvalue += val
+            sigilValue += val
         }
     }
 
-    if (playerData.TotemData.RitualSlot != null) {
-        const val = playerData.TotemData.RitualSlot.Value
-        sigilvalue += val
+    if (totemData.RitualSlot != null) {
+        const val = totemData.RitualSlot.Value
+        sigilValue += val
     }
-    
-    return change.after.ref.set({
-        SigilScore: sigilvalue
-      }, {merge: true})
-})
+    return sigilValue
+}

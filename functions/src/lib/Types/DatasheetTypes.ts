@@ -6,6 +6,10 @@ export type starDatasheetType = {
     SigilChance: number
 }
 
+export type xpDatasheet = {
+    CostPerLevelXP: numberNumberMapType
+}
+
 export type starsDatasheetType = {
     [key: number]: starDatasheetType
 }
@@ -13,6 +17,7 @@ export type starsDatasheetType = {
 export type attackRewardsDatasheetType = {
     RewardsByStars: starsDatasheetType
     BaseXP: number
+    BasePearlsMult: number
 }
 
 export type currencyCostsDatasheetType = {

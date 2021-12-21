@@ -1,6 +1,7 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import {GetPlayerByAuthTokenWithRef} from '../../HelperMethods/GoogleMethods'
+import { playerTypeFirebase } from '../../Types/PlayerTypes'
 
 export const _updateMana = functions.https.onCall(async (_data) => {
     const authToken = _data.authToken
@@ -16,7 +17,7 @@ export const _updateMana = functions.https.onCall(async (_data) => {
     return {success: true, message: "Mana updated", mana: JSON.stringify(newMana), lastUpdate: JSON.stringify(lastUpdate)}
 })
 
-export async function UpdateMana(playerData: admin.firestore.DocumentData, playerRef: admin.firestore.DocumentReference) {
+export async function UpdateMana(playerData: playerTypeFirebase, playerRef: admin.firestore.DocumentReference) {
     const timeNow = admin.firestore.Timestamp.now().toMillis()
     const lastTime = playerData.ManaData.LastManaUpdate.toMillis()
     const minutesElapsed = (timeNow - lastTime) / 1000 / 60

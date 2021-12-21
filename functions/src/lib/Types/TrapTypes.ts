@@ -6,7 +6,7 @@ export type allTrapPositionsType = {
 }
 
 export type allTrapItemsType = {
-    [key in keyof typeof trapEnum]: trapItemType;
+    [key in trapType]: trapItemType;
 }
 
 export type trapItemType = {
@@ -15,12 +15,11 @@ export type trapItemType = {
     TimeStampFinishedUpgrading: admin.firestore.Timestamp;
 }
 
-export enum trapEnum {
-    Urchin, Muscle, StaticCanon, ElectroRock, Tentacle, Dropper, Piranha, Start, Exit
-}
+export type trapType =
+"Urchin" | "Muscle" | "StaticCanon" | "ElectroRock" | "Tentacle" | "Dropper" | "Piranha" | "Start" | "Exit";
 
 export type trapPositionType = {
-    Type: trapEnum;
+    Type: trapType;
     PosX: number;
     PosY: number;
     RotZ: number;

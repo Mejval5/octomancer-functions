@@ -11,6 +11,7 @@ function CreateData() {
     const data = {} as attackRewardsDatasheetType
     data.RewardsByStars = CreateStars()
     data.BaseXP = 500
+    data.BasePearlsMult = 0.3
     return data
 }
 

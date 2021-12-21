@@ -77,6 +77,8 @@ exports.subtractManaAttack = _subtractManaAttack
 // Updating functions
 import { _updateMana } from './lib/GameLogic/Currencies/ManaUpdater'
 import {_updateAllPlayers} from './lib/DataScripts/UpdateScripts/PlayerUpdater'
+import { _updateXP } from './lib/GameLogic/Currencies/XPUpdater'
 
 exports.updateMana = _updateMana
 exports.updateAllPlayers = _updateAllPlayers
+exports.updateXP = _updateXP

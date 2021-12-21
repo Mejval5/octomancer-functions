@@ -58,7 +58,7 @@ export async function SendPubSubMessage (topicName: string, data: any) {
 
 export async function GetPlayerByAuthToken(authToken : string) : Promise<playerTypeFirebase | null> {
   const snapshot = await admin.firestore().collection('Players').where('AuthToken', '==', authToken).get()
-  if (snapshot.empty) {
+  if (snapshot == null || snapshot.empty) {
       return null
   }
   let playerData: playerTypeFirebase = {} as playerTypeFirebase
@@ -70,7 +70,7 @@ export async function GetPlayerByAuthToken(authToken : string) : Promise<playerT
 
 export async function GetPlayerByAuthTokenWithRef(authToken : string) : Promise<[playerTypeFirebase | null, FirebaseFirestore.DocumentReference | null]> {
   const snapshot = await admin.firestore().collection('Players').where('AuthToken', '==', authToken).get()
-  if (snapshot.empty) {
+  if (snapshot == null || snapshot.empty) {
       return [null, null]
   }
   let playerData: playerTypeFirebase = {} as playerTypeFirebase

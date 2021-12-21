@@ -9,6 +9,7 @@ export const _createCurrencyCostsDatasheet = functions.pubsub.topic('create-new-
 
 function CreateData() {
     const data = {} as currencyCostsDatasheetType
+    data.SkipCost = 200
     data.SpinAgain = CreateSpinAgain()
     data.SpinAgainCumulative = CreateSpinAgainCumulative(data.SpinAgain)
     return data
@@ -17,7 +18,7 @@ function CreateData() {
 function CreateSpinAgain() {
     const data = {} as spinAgainDatasheetType
     for (let i = 0; i < 20; i++) {
-        data[i] = 5 * i * i
+        data[i] = 5 * (i + 1) * (i + 1)
     }
     return data
 }

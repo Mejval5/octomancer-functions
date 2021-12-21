@@ -30,9 +30,9 @@ export const _removeAttackTargetAfterTime = functions.firestore.document(
 
     const data = {playerName: context.params.playerName, enemyName: context.params.enemyName}
     const timeNow = admin.firestore.Timestamp.now()
-    const deleteAfterSeconds = timeNow.seconds +  30 * 60
+    const deleteAfterSeconds = timeNow.seconds +  60 * 60
     const removeTask = await StartTaskInQueue("delete-attack-target", "removeAttackTarget", data, deleteAfterSeconds)
     return change.after.ref.set({
-        removeTask: String(removeTask)
+        RemoveTask: String(removeTask)
       }, {merge: true})
     })

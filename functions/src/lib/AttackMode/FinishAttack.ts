@@ -39,10 +39,10 @@ Promise<[boolean, attackTargetFirebaseType]> {
     let enemyAttackedData = {} as attackTargetFirebaseType
 
     for (const enemy of previousEnemies) {
-        const enemyData = enemy.data()
-        if (enemyData.attackToken === attackToken && !enemyData.attacked) {
+        const enemyData = enemy.data() as attackTargetFirebaseType
+        if (enemyData.AttackToken === attackToken && !enemyData.AlreadyAttacked) {
             enemyAttackable = true
-            enemyAttackedData = enemyData as attackTargetFirebaseType
+            enemyAttackedData = enemyData
             break
         }
     }

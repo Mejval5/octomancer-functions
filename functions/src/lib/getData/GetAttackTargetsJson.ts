@@ -4,8 +4,8 @@ import {GetPlayerByAuthToken, GetRandomDocumentID} from '../HelperMethods/Google
 import {GetSpins, RandomBotName, GetRandomInt} from '../HelperMethods/GameMethods'
 import {InitSigil} from '../DataScripts/Sigil'
 import {getAmountOfPortals as getAmountOfPortals, getAmountOfPortalsBot, getManaCostPerPortalFromData, getManaCostPerPortalFromDataBot} from '../GameLogic/Portaling/PortalMethods'
-import { attackTargetFirebaseType, attackTargetUnityType } from '../Types/AttackTypes'
-import { itemDatasheetType } from '../Types/DatasheetTypes'
+import { attackTargetFirebaseType, attackTargetUnityType, botDataType } from '../Types/AttackTypes'
+import { attackRewardsDatasheetType, itemDatasheetType } from '../Types/DatasheetTypes'
 import { playerTypeFirebase } from '../Types/PlayerTypes'
 import { createTrapData } from '../DataScripts/CreateTrapData'
 
@@ -16,15 +16,17 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
 
     const playerDataTask = GetPlayerByAuthToken(authToken)
     const itemDatasheetTask = admin.firestore().collection('Datasheets').doc('ItemData').get()
+    const attackRewardsTask = admin.firestore().collection('Datasheets').doc('AttackRewards').get()
 
-    const [playerData, itemDatasheetSnap] = await Promise.all([playerDataTask, itemDatasheetTask])
+    const [playerData, itemDatasheetSnap, attackRewardsSnap] = await Promise.all([playerDataTask, itemDatasheetTask, attackRewardsTask])
     const itemDatasheet: itemDatasheetType = itemDatasheetSnap.data() as itemDatasheetType
+    const attackRewards = attackRewardsSnap.data() as attackRewardsDatasheetType
 
     if (playerData === null || itemDatasheet == null) {
         return {success: false, message: "Player not found"}
     }
 
-    const enemiesTask = getEnemies(playerData.PlayerName, _data.amount, itemDatasheet)
+    const enemiesTask = getEnemies(playerData.PlayerName, _data.amount, itemDatasheet, attackRewards)
     const botsTask = GetBots(_data.amount, itemDatasheet)
 
 
@@ -39,14 +41,14 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
     if (enemies.length > 0) {
         for (const enemy of enemies) {
             [firestoreTasks, enemiesJson] = setupSingleAttackTarget(
-                enemy, firestoreTasks, playerData.PlayerName, enemiesJson)
+                enemy, firestoreTasks, playerData.PlayerName, enemiesJson, false)
         }
     }
 
     if (bots.length > 0) {
         for (let i = 0; i < missingEnemies; i++) {
             [firestoreTasks, enemiesJson] = setupSingleAttackTarget(
-                bots[i], firestoreTasks, playerData.PlayerName, enemiesJson)
+                bots[i], firestoreTasks, playerData.PlayerName, enemiesJson, true)
         }
     }
 
@@ -56,8 +58,8 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
 })
 
 function setupSingleAttackTarget(enemy: attackTargetUnityType, firestoreTasks: Promise<FirebaseFirestore.WriteResult>[],
-    playerName: string, enemiesJson: string[]) : [Promise<admin.firestore.WriteResult>[], string[]] {
-    const enemyData: attackTargetFirebaseType = createAttackTarget(enemy, false)
+    playerName: string, enemiesJson: string[], isbot: boolean) : [Promise<admin.firestore.WriteResult>[], string[]] {
+    const enemyData: attackTargetFirebaseType = createAttackTarget(enemy, isbot)
     firestoreTasks.push(admin.firestore().collection('Players').doc(playerName).
         collection('EnemiesAttacked').doc(enemy.PlayerName).set(enemyData))
 
@@ -75,7 +77,8 @@ function createAttackTarget(target: attackTargetUnityType, isBot: boolean): atta
     }
 }
 
-async function getEnemies(name: string, amount: number, itemDatasheet: itemDatasheetType) : Promise<attackTargetUnityType[]> {
+async function getEnemies(name: string, amount: number, itemDatasheet: itemDatasheetType, attackRewards: attackRewardsDatasheetType)
+: Promise<attackTargetUnityType[]> {
     const playerDocumentsTask =  admin.firestore().collection('Players').get()
     const previousEnemiesTask = admin.firestore().collection('Players').doc(name).collection('EnemiesAttacked').get()
 
@@ -109,7 +112,7 @@ async function getEnemies(name: string, amount: number, itemDatasheet: itemDatas
         attackTarget.PortalCost = getManaCostPerPortalFromData(currentEnemyData, itemDatasheet)
         attackTarget.PlayerName = currentEnemyData.PlayerName
         attackTarget.CurrentGuild = currentEnemyData.CurrentGuild
-        attackTarget.Pearls = currentEnemyData.CurrentPearls
+        attackTarget.Pearls = Math.floor(currentEnemyData.CurrentPearls * attackRewards.BasePearlsMult)
         attackTarget.LevelData = currentEnemyData.LevelData
         attackTarget.Sigil = currentEnemyData.TotemData.RitualSlot
         attackTarget.TrapData = currentEnemyData.TrapData
@@ -120,10 +123,13 @@ async function getEnemies(name: string, amount: number, itemDatasheet: itemDatas
 
 async function GetBots(amount: number, itemDatasheet: itemDatasheetType) {
     const botDocumentsTask = admin.firestore().collection('Bots').get()
-    const botDocuments = await botDocumentsTask
+    const botDocuments = (await botDocumentsTask).docs
     let botTasks: Promise<attackTargetUnityType>[] = []
+    if (botDocuments.length < 1) {
+        return await Promise.all(botTasks)
+    }
     while (botTasks.length < amount) {
-        botTasks.push(GetBot(botDocuments.docs, itemDatasheet))
+        botTasks.push(GetBot(botDocuments, itemDatasheet))
     }
     return await Promise.all(botTasks)
 }
@@ -132,7 +138,7 @@ async function GetBot (botDocuments: FirebaseFirestore.QueryDocumentSnapshot<Fir
     
     const attackTarget: attackTargetUnityType = {} as attackTargetUnityType
     const shuffledData = _.shuffle(botDocuments)
-    const botData = shuffledData[0]
+    const botData = shuffledData[0].data() as botDataType
 
     attackTarget.AttackToken = GetRandomDocumentID()
     attackTarget.PortalsAmount = getAmountOfPortalsBot(itemDatasheet)

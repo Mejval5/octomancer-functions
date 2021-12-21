@@ -3,7 +3,7 @@ import { GetPlayerByAuthToken } from '../HelperMethods/GoogleMethods'
 
 export const _loginUser = functions.https.onCall(async (_data) => {
 
-    const authToken = _data.authToken
+    const authToken = _data.authToken as string
     
     const playerData = await GetPlayerByAuthToken(authToken)
 

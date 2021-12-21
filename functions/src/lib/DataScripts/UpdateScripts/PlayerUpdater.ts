@@ -2,16 +2,17 @@ import {UpdatePlayerData01} from './PlayerUpdate01'
 import * as admin from 'firebase-admin'
 import * as functions from 'firebase-functions'
 import {UpdateMana} from '../../GameLogic/Currencies/ManaUpdater'
+import { playerTypeFirebase } from '../../Types/PlayerTypes'
 
 export async function UpdatePlayerAll(playerName: string) {
     const playerRef = admin.firestore().collection('Players').doc(playerName)
-    let playerData = (await playerRef.get()).data();
+    let playerData = (await playerRef.get()).data() as playerTypeFirebase;
     if (playerData != null) {
         await UpdatePlayerCurrencies(playerData, playerRef)
     }
 }
 
-async function UpdatePlayerCurrencies(playerData: admin.firestore.DocumentData, playerRef: admin.firestore.DocumentReference) {
+async function UpdatePlayerCurrencies(playerData: playerTypeFirebase, playerRef: admin.firestore.DocumentReference) {
     if (playerData != null) {
         await UpdateMana(playerData, playerRef)
     }
