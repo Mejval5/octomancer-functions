@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {UpdatePlayerAll} from '../DataScripts/UpdateScripts/PlayerUpdater'
+import {UpdatePlayerAll} from '../CreateDataScripts/UpdateScripts/PlayerUpdater'
 import { playerTypeFirebase, playerTypeUnity } from '../Types/PlayerTypes'
 
 export const _getPlayerDataJson = functions.https.onCall(async (_data) => {

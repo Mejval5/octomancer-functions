@@ -2,12 +2,12 @@ import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
 import {GetPlayerByAuthToken, GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
 import {GetSpins, RandomBotName, GetRandomInt} from '../HelperMethods/GameMethods'
-import {InitSigil} from '../DataScripts/Sigil'
+import {InitSigil} from '../CreateDataScripts/Sigil'
 import {getAmountOfPortals as getAmountOfPortals, getAmountOfPortalsBot, getManaCostPerPortalFromData, getManaCostPerPortalFromDataBot} from '../GameLogic/Portaling/PortalMethods'
 import { attackTargetFirebaseType, attackTargetUnityType, botDataType } from '../Types/AttackTypes'
 import { attackRewardsDatasheetType, itemDatasheetType } from '../Types/DatasheetTypes'
 import { playerTypeFirebase } from '../Types/PlayerTypes'
-import { createTrapData } from '../DataScripts/CreateTrapData'
+import { createTrapData } from '../CreateDataScripts/CreateTrapData'
 
 const _ = require('lodash');
 

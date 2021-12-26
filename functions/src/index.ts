@@ -3,11 +3,11 @@ admin.initializeApp()
 
 
 // Get stuff from the database
-import {_getCurrentTime} from './lib/GetData/GetCurrentTime'
-import {_getPlayerDataJson} from './lib/GetData/GetPlayerDataJson'
-import {_getPlayerListByRank} from './lib/GetData/GetPlayerListByRank'
-import {_getAttackTargetsJson} from './lib/GetData/GetAttackTargetsJson'
-import {_getDatasheets} from './lib/GetData/GetDatasheets'
+import {_getCurrentTime} from './lib/GetDataScripts/GetCurrentTime'
+import {_getPlayerDataJson} from './lib/GetDataScripts/GetPlayerDataJson'
+import {_getPlayerListByRank} from './lib/GetDataScripts/GetPlayerListByRank'
+import {_getAttackTargetsJson} from './lib/GetDataScripts/GetAttackTargetsJson'
+import {_getDatasheets} from './lib/GetDataScripts/GetDatasheets'
 
 exports.getPlayerDataJson = _getPlayerDataJson
 exports.getCurrentTime = _getCurrentTime
@@ -76,7 +76,7 @@ exports.subtractManaAttack = _subtractManaAttack
 
 // Updating functions
 import { _updateMana } from './lib/GameLogic/Currencies/ManaUpdater'
-import {_updateAllPlayers} from './lib/DataScripts/UpdateScripts/PlayerUpdater'
+import {_updateAllPlayers} from './lib/CreateDataScripts/UpdateScripts/PlayerUpdater'
 import { _updateXP } from './lib/GameLogic/Currencies/XPUpdater'
 
 exports.updateMana = _updateMana
