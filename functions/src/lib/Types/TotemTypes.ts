@@ -10,6 +10,7 @@ export type totemType = {
     RitualSlot: sigilType | null
     RitualFinishedPackage: sigilType | null
     RitualTask: string
+    FinishedRituals: sigilSlotsType
 }
 
 export type sigilSlotsType = {

@@ -20,6 +20,7 @@ export async function newTotem(): Promise<totemType> {
   totem.RitualSlot = null
   totem.RitualFinishedPackage = null
   totem.RitualTask = ""
+  totem.FinishedRituals = {} as sigilSlotsType
   return totem
 }
 

@@ -20,7 +20,8 @@ export const _attemptFinishingRitual = functions.https.onRequest(async (req, res
 
     playerData.TotemData.RitualRunning = false
     playerData.TotemData.RitualTask = ""
-    playerData.TotemData.RitualSlot = getNewSigil(playerData.TotemData.RitualFinishedPackage)
+    const newKey = Object.keys(playerData.TotemData.FinishedRituals).length
+    playerData.TotemData.FinishedRituals[newKey] = getNewSigil(playerData.TotemData.RitualFinishedPackage)
 
     await admin.firestore().collection('Players').doc(playerName).update({
         TotemData: playerData.TotemData
