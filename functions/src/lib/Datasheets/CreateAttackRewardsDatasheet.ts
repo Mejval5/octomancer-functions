@@ -25,15 +25,15 @@ function CreateStars() {
 
 function CreateOneStar() {
     const data = {} as starDatasheetType
-    data.PearlsMult = 0.3
-    data.XPMult = 1
+    data.PearlsMult = 0.1
+    data.XPMult = 0.1
     data.SigilChance = 0.05
     return data
 }
 
 function CreateTwoStar() {
     const data = {} as starDatasheetType
-    data.PearlsMult = 0.15
+    data.PearlsMult = 0.5
     data.XPMult = .5
     data.SigilChance = 0.25
     return data
@@ -41,8 +41,8 @@ function CreateTwoStar() {
 
 function CreateThreeStar() {
     const data = {} as starDatasheetType
-    data.PearlsMult = 0.03
-    data.XPMult = .1
+    data.PearlsMult = 1
+    data.XPMult = 1
     data.SigilChance = 0.5
     return data
 }

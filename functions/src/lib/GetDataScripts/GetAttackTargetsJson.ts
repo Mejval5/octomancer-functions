@@ -155,6 +155,9 @@ async function GetBot (botDocuments: FirebaseFirestore.QueryDocumentSnapshot<Fir
 }
 
 function getBotSigil () {
+    if (GetRandomInt(0,3) != 1)
+        return null
+
     const _t = GetRandomInt(0,3)
     const _v = Math.round(Math.random() * 400 + 5)
     return InitSigil(_v, _t, GetRandomDocumentID())

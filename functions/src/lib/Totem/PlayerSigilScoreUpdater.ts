@@ -35,6 +35,17 @@ export async function getPlayerSigilScore(totemData: totemType, totemDatasheet: 
         }
     }
 
+    if (totemData.FinishedRituals != null) {
+        for (let i = 0; i < Object.keys(totemData.FinishedRituals).length; i++) {
+            const sigil = totemData.FinishedRituals[i]
+            if (sigil != null) {
+                const val = sigil.Value
+                sigilValue += val
+            }
+        }
+    }
+
+
     if (totemData.RitualSlot != null) {
         const val = totemData.RitualSlot.Value
         sigilValue += val
