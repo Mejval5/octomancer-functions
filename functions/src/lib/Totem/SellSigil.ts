@@ -4,6 +4,7 @@ import {GetPlayerByAuthTokenWithRef} from '../HelperMethods/GoogleMethods'
 import { conversionsDatasheetType, totemDatasheetType } from '../Types/DatasheetTypes'
 import { playerTypeFirebase } from '../Types/PlayerTypes'
 import { updatePlayerAndSellValue } from './AddNewSigilToTotem'
+import { updatePlayerSigilScore } from './PlayerSigilScoreUpdater'
 
 export const _sellSigil = functions.https.onCall(async (_data) => {
     const sigilName = _data.sigilName as string
@@ -26,6 +27,8 @@ export const _sellSigil = functions.https.onCall(async (_data) => {
     if (sellValue == -1) {
         return {success: false, message: "Sigil not found"}
     }
+
+    await updatePlayerSigilScore(playerData.PlayerName)
 
     return {success: true, message: "Sigil sond for :" + sellValue.toString()}
 })

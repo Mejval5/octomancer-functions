@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin'
 import { levelType } from './LevelTypes'
-import { sigilType } from './TotemTypes'
+import { nullableSigilType} from './TotemTypes'
 import { allTrapItemsType } from './TrapTypes'
 
 export type spinsEnemyType = {
@@ -25,7 +25,7 @@ export type attackTargetFirebaseType = {
     AlreadyAttacked: boolean
     Stars: number
     RemoveTask: string
-    Sigil: sigilType | null
+    Sigil: nullableSigilType
 }
 
 export type attackTargetUnityType = {    
@@ -37,6 +37,6 @@ export type attackTargetUnityType = {
     PlayerName: string
     CurrentGuild: string
     LevelData: levelType
-    Sigil: sigilType | null
+    Sigil: nullableSigilType
     TrapData: allTrapItemsType
 }

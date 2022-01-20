@@ -17,21 +17,21 @@ exports.getDatasheets = _getDatasheets
 
 
 // Totem functions
-import {_playerSigilScoreUpdater} from './lib/Totem/PlayerSigilScoreUpdater'
 import {_uploadSigilPositionChange} from './lib/Totem/UploadSigilPositionChange'
 import {_addNewSigilToTotem} from './lib/Totem/AddNewSigilToTotem'
 import {_startRitual} from './lib/Totem/StartRitual'
 import {_cancelRitual} from './lib/Totem/CancelRitual'
 import {_attemptFinishingRitual} from './lib/Totem/AttemptFinishingRitual'
 import {_sellSigil} from './lib/Totem/SellSigil'
+import { _mergeSigils } from './lib/Totem/MergeSigils'
 
-exports.playerSigilScoreUpdater = _playerSigilScoreUpdater
 exports.uploadSigilPositionChange = _uploadSigilPositionChange
 exports.addNewSigilToTotem = _addNewSigilToTotem
 exports.startRitual = _startRitual
 exports.cancelRitual = _cancelRitual
 exports.attemptFinishingRitual = _attemptFinishingRitual
 exports.sellSigil = _sellSigil
+exports.mergeSigils = _mergeSigils
 
 
 // Loging in and adding user functions
@@ -60,15 +60,11 @@ exports.createAttackRewardsDatasheet = _createAttackRewardsDatasheet
 exports.createCurrencyCostsDatasheet = _createCurrencyCostsDatasheet
 
 // Attacking functions
-import {_removeAttackTargetAfterTime} from './lib/AttackMode/RemoveAttackTargetAfterTime'
-import {_removeAttackTarget} from './lib/AttackMode/RemoveAttackTarget'
 import {_finishAttack} from './lib/AttackMode/FinishAttack'
 import {_finishAttackSpins} from './lib/AttackMode/FinishAttackSpins'
 import {_skipDungeon} from './lib/AttackMode/SkipDungeon'
 import {_subtractManaAttack} from './lib/AttackMode/SubtractManaAttack'
 
-exports.removeAttackTargetAfterTime = _removeAttackTargetAfterTime
-exports.removeAttackTarget = _removeAttackTarget
 exports.finishAttack = _finishAttack
 exports.finishAttackSpins = _finishAttackSpins
 exports.skipDungeon = _skipDungeon

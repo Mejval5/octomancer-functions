@@ -25,12 +25,16 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
     if (playerData === null || itemDatasheet == null) {
         return {success: false, message: "Player not found"}
     }
+    
+    const previousEnemies = (await admin.firestore().collection('Players').
+    doc(playerData.PlayerName).collection('EnemiesAttacked').get()).docs
 
-    const enemiesTask = getEnemies(playerData.PlayerName, _data.amount, itemDatasheet, attackRewards)
+    const enemiesTask = getEnemies(playerData.PlayerName, _data.amount, itemDatasheet, attackRewards, previousEnemies)
     const botsTask = GetBots(_data.amount, itemDatasheet)
+    const removeOldTask = removeInvalidTargets(playerData.PlayerName, previousEnemies)
 
 
-    const [enemies, bots] = await Promise.all([enemiesTask, botsTask])
+    const [enemies, bots] = await Promise.all([enemiesTask, botsTask, removeOldTask])
 
     const missingEnemies = _data.amount - enemies.length
 
@@ -57,6 +61,24 @@ export const _getAttackTargetsJson = functions.https.onCall(async (_data) => {
     return {success: true, message: "Enemies got: " + enemiesJson.length.toString(), enemies: enemiesJson}
 })
 
+async function removeInvalidTargets(playerName: string,
+    previousAttackTargets: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[])
+    : Promise<void> {
+
+    const documentKeys = Object.keys(previousAttackTargets)
+    let firestoreTasks: Promise<admin.firestore.WriteResult>[] = []
+
+    for (const documentKey in documentKeys) {
+        const enemy = previousAttackTargets[documentKey].data() as attackTargetFirebaseType
+        if (enemy.AddedTime.seconds + 60 * 60 >= admin.firestore.Timestamp.now().seconds || enemy.AlreadyAttacked) {
+            firestoreTasks.push(admin.firestore().collection('Players').doc(playerName).
+            collection('EnemiesAttacked').doc(enemy.TargetName).delete())
+        }
+    }
+
+    await Promise.all(firestoreTasks)
+}
+
 function setupSingleAttackTarget(enemy: attackTargetUnityType, firestoreTasks: Promise<FirebaseFirestore.WriteResult>[],
     playerName: string, enemiesJson: string[], isbot: boolean) : [Promise<admin.firestore.WriteResult>[], string[]] {
     const enemyData: attackTargetFirebaseType = createAttackTarget(enemy, isbot)
@@ -77,15 +99,15 @@ function createAttackTarget(target: attackTargetUnityType, isBot: boolean): atta
     }
 }
 
-async function getEnemies(name: string, amount: number, itemDatasheet: itemDatasheetType, attackRewards: attackRewardsDatasheetType)
+async function getEnemies(name: string, amount: number, itemDatasheet: itemDatasheetType,
+    attackRewards: attackRewardsDatasheetType,
+    previousAttackTargets: FirebaseFirestore.QueryDocumentSnapshot<FirebaseFirestore.DocumentData>[])
 : Promise<attackTargetUnityType[]> {
     const playerDocumentsTask =  admin.firestore().collection('Players').get()
-    const previousEnemiesTask = admin.firestore().collection('Players').doc(name).collection('EnemiesAttacked').get()
 
-    const [playerDocumentsSnap, previousAttackTargetsSnap] = await Promise.all([playerDocumentsTask, previousEnemiesTask])
+    const playerDocumentsSnap= await playerDocumentsTask
 
     const playerDocuments = playerDocumentsSnap.docs
-    const previousAttackTargets = previousAttackTargetsSnap.docs
 
     let documentKeys = Object.keys(playerDocuments)
     documentKeys.sort(function() {return Math.random()-0.5})

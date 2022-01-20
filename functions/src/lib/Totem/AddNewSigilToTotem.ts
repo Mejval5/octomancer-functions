@@ -4,6 +4,7 @@ import {GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
 import { sigilType } from '../Types/TotemTypes'
 import { playerTypeFirebase } from '../Types/PlayerTypes'
 import { conversionsDatasheetType, totemDatasheetType } from '../Types/DatasheetTypes'
+import { updatePlayerSigilScore } from './PlayerSigilScoreUpdater'
 
 export const _addNewSigilToTotem = functions.pubsub.topic('add-new-sigil').onPublish(async (message) => {
     let playerName = ""
@@ -53,6 +54,7 @@ export async function addSigilToPlayer(playerName: string, sigilName: string, _s
 
     const wasSigilAdded = await tryFillFirstAvailableSlot(playerRef, playerData, totemDatasheet, newSigil)
     if (wasSigilAdded) {
+        await updatePlayerSigilScore(playerData.PlayerName)
         return
     }
 
@@ -60,10 +62,13 @@ export async function addSigilToPlayer(playerName: string, sigilName: string, _s
 
     if (lowestSigilInInventory >= newSigil.Value) {
         await sellSigil(newSigil.Value, playerRef, conversionsDatasheet)
+        return
     }
 
     await replaceLowestSigil(
         playerData, totemDatasheet, playerRef, conversionsDatasheet, lowestSigilInInventory, newSigil)
+
+    await updatePlayerSigilScore(playerData.PlayerName)
 
 }
 

@@ -1,23 +1,26 @@
-import * as functions from 'firebase-functions'
 import { playerTypeFirebase } from '../Types/PlayerTypes'
 import * as admin from 'firebase-admin'
 import { totemDatasheetType } from '../Types/DatasheetTypes'
 import { totemType } from '../Types/TotemTypes'
 
-export const _playerSigilScoreUpdater = functions.firestore.document('Players/{userId}').onUpdate(async (change, _) =>{
-    const playerData = change.after.data() as playerTypeFirebase
+export async function updatePlayerSigilScore(playerName: string){
 
-    const totemDatasheetDoc = await admin.firestore().collection('Datasheets').doc('TotemDatasheet').get()
-    const totemDatasheet = totemDatasheetDoc.data() as totemDatasheetType
+    const playerDataTask = admin.firestore().collection('Players').doc(playerName).get()
+    const totemDatasheetTask = admin.firestore().collection('Datasheets').doc('TotemDatasheet').get()
 
-    const sigilValue = await getPlayerSigilScore(playerData.TotemData, totemDatasheet)
+    const [playerDataSnap, totemDatasheetSnap] = await Promise.all([playerDataTask, totemDatasheetTask])
+
+    const playerData = playerDataSnap.data() as playerTypeFirebase
+    const totemDatasheet = totemDatasheetSnap.data() as totemDatasheetType
+
+    const sigilValue = getPlayerSigilScore(playerData.TotemData, totemDatasheet)
     
-    return change.after.ref.set({
+    await admin.firestore().collection('Players').doc(playerName).update({
         SigilScore: sigilValue
-      }, {merge: true})
-})
+    })
+}
 
-export async function getPlayerSigilScore(totemData: totemType, totemDatasheet: totemDatasheetType) {
+export function getPlayerSigilScore(totemData: totemType, totemDatasheet: totemDatasheetType) {
     let sigilValue = 0
     for (let i = 0; i < totemDatasheet.RegularSlots; i++) {
         const sigilSlot = totemData.NormalSlots[i]
@@ -44,7 +47,6 @@ export async function getPlayerSigilScore(totemData: totemType, totemDatasheet: 
             }
         }
     }
-
 
     if (totemData.RitualSlot != null) {
         const val = totemData.RitualSlot.Value

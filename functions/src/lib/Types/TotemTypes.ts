@@ -7,14 +7,14 @@ export type totemType = {
     DurabilityLeft: number
     BonusSlots: bonusSigilSlotsType
     NormalSlots: sigilSlotsType
-    RitualSlot: sigilType | null
-    RitualFinishedPackage: sigilType | null
+    RitualSlot: nullableSigilType
+    RitualFinishedPackage: nullableSigilType
     RitualTask: string
     FinishedRituals: sigilSlotsType
 }
 
 export type sigilSlotsType = {
-    [key: number]: sigilType | null
+    [key: number]: nullableSigilType
 }
 
 export type sigilType = {
@@ -28,8 +28,8 @@ export type bonusSigilSlotsType = {
 }  
 
 export type bonusSlotType = {
-    Sigil: sigilType | null
+    Sigil: nullableSigilType
     Unlocked: boolean
 }
 
-  
+export type nullableSigilType = sigilType | null

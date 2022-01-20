@@ -42,19 +42,24 @@ export const _uploadSigilPositionChange = functions.https.onCall(async (_data) =
 async function isMoveLegal(playerData: playerTypeFirebase,
     uploadTotem: totemType, totemDatasheet: totemDatasheetType) {
     
+        if (Object.keys(playerData.TotemData.NormalSlots).length != totemDatasheet.RegularSlots)
+            return false
+
+        if (Object.keys(playerData.TotemData.BonusSlots).length != totemDatasheet.BonusSlots)
+            return false
+
         const playerSigilsArray = getSigilsToArray(playerData.TotemData, totemDatasheet)
         const uploadSigilsArray = getSigilsToArray(uploadTotem, totemDatasheet)
 
         const playerSigilsSorted = _.sortBy(playerSigilsArray, [function(sigil) { return sigil.Name; }])
         const uploadSigilsSorted = _.sortBy(uploadSigilsArray, [function(sigil) { return sigil.Name; }])
         
-        if (!_.isEqual(playerSigilsSorted, uploadSigilsSorted)) {
+        if (!_.isEqual(playerSigilsSorted, uploadSigilsSorted))
             return false
-        }
 
-        if (!_.isEqual(playerData.TotemData.RitualSlot, uploadTotem.RitualSlot)) {
+        if (!_.isEqual(playerData.TotemData.RitualSlot, uploadTotem.RitualSlot))
             await stopRitual(playerData)
-        }
+
         return true
 }
 

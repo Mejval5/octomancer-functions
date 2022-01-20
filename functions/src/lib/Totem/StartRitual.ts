@@ -1,12 +1,17 @@
 import * as functions from 'firebase-functions'
 import * as admin from 'firebase-admin'
-import {StartTaskInQueue, GetPlayerByAuthTokenWithRef, GetRandomDocumentID} from '../HelperMethods/GoogleMethods'
+import {StartTaskInQueue, GetPlayerByAuthTokenWithRef} from '../HelperMethods/GoogleMethods'
 import { totemDatasheetType } from '../Types/DatasheetTypes'
 import { sigilType } from '../Types/TotemTypes'
 
 export const _startRitual = functions.https.onCall(async (_data) => {
     const receivedToken = _data.authToken as string
-    const [playerData, playerRef] = await GetPlayerByAuthTokenWithRef(receivedToken)
+
+    const playerByAuthTask = GetPlayerByAuthTokenWithRef(receivedToken)
+    const totemDatasheetTask = admin.firestore().collection("Datasheets").doc("TotemDatasheet").get()
+
+    const [[playerData, playerRef], totemDatasheetSnap] = await Promise.all([playerByAuthTask, totemDatasheetTask])
+
     if (playerData == null || playerRef == null) {
         return {message: "Player not found", success: false}
     }
@@ -16,8 +21,7 @@ export const _startRitual = functions.https.onCall(async (_data) => {
     if (playerData.TotemData.RitualSlot == null) {
         return {message: "Sigil is missing", success: false}
     }
-    
-    const totemDatasheetSnap = await admin.firestore().collection("Datasheets").doc("SigilRitual").get()
+
     const totemDatasheet = totemDatasheetSnap.data() as totemDatasheetType
 
     playerData.TotemData.RitualRunning = true
@@ -30,10 +34,13 @@ export const _startRitual = functions.https.onCall(async (_data) => {
     const finishedSigil = {} as sigilType
     finishedSigil.Type = playerData.TotemData.RitualSlot.Type
     finishedSigil.Value = getFinishedSigilValue(playerData.TotemData.RitualSlot.Value, totemDatasheet)
-    finishedSigil.Name = GetRandomDocumentID()
+    finishedSigil.Name = playerData.TotemData.RitualSlot.Name
+
+    playerData.TotemData.RitualFinishedPackage = finishedSigil
 
     const data = {playerName: playerData.PlayerName}
     const finishTask = await StartTaskInQueue("ritual-finish", "attemptFinishingRitual", data, finishTime.seconds)
+    
     playerData.TotemData.RitualTask = String(finishTask)
 
     await playerRef.update({
